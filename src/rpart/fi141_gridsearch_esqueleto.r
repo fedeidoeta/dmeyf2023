@@ -157,7 +157,7 @@ for (vmax_depth in c(9, 10, 11, 12, 13, 20)) {
   }
 }
 
-file <- "C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas/exp/HT2020/gridsearch_3.txt"
+file <- "C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas/exp/HT2020/gridsearch_4.txt"
 gridsearch_df <- read.table(file,                 # Archivo de datos TXT indicado como string o ruta completa al archivo
            header = TRUE,       # Si se muestra el encabezado (TRUE) o no (FALSE)
            sep = "",             # Separador de las columnas del archivo
@@ -177,9 +177,9 @@ modelo <- rpart(
         formula = "clase_ternaria ~ .",
         data = dtrain, # los datos donde voy a entrenar
         xval = 5,
-        cp = -1.5, # esto significa no limitar la complejidad de los splits
-        minsplit = 200, # minima cantidad de registros para que se haga el split
-        minbucket = 50, # tamaño minimo de una hoja
+        cp = -7, # esto significa no limitar la complejidad de los splits
+        minsplit = 800, # minima cantidad de registros para que se haga el split
+        minbucket = 200, # tamaño minimo de una hoja
         maxdepth = 9
 ) # profundidad maxima del arbol
 
@@ -218,6 +218,6 @@ dir.create("./exp/KA2001")
 
 # solo los campos para Kaggle
 fwrite(dapply[, list(numero_de_cliente, Predicted)],
-        file = "./exp/KA2001/K141_008.csv",
+        file = "./exp/KA2001/K141_009.csv",
         sep = ","
 )
