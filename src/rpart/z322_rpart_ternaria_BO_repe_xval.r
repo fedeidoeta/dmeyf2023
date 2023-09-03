@@ -3,6 +3,7 @@
 # trabaja con la clase_ternaria
 
 # limpio la memoria
+
 rm(list = ls()) # remove all objects
 gc() # garbage collection
 
@@ -16,6 +17,9 @@ require("parallel")
 require("DiceKriging")
 require("mlrMBO")
 
+#install.packages("mlrMBO")
+#install.packages("rlist")
+#install.packages("DiceKriging")
 
 # Defino la  Optimizacion Bayesiana
 PARAM <- list()
@@ -27,8 +31,8 @@ PARAM$experimento <- "HT3220"
 # Aqui van las 10 semillas que hacen el 10-repeated
 #  si se pone una sola semilla, se esta haciendo solo 5-fold xval
 PARAM$semilla_azar <- c(
-  102191, 200177, 410551, 552581, 892237,
-  753587, 247759, 253369, 955127, 800519
+  270001, 270029, 270031, 270037, 270059, 270071,
+  247759, 253369, 955127, 800519
 )
 
 # folds del cross validation
@@ -49,7 +53,7 @@ PARAM$hs <- makeParamSet(
 
 
 # este valor debe ser 1 si se utiliza Windows
-PARAM$cores <- 5
+PARAM$cores <- 1
 
 #------------------------------------------------------------------------------
 # graba a un archivo los componentes de lista
@@ -205,6 +209,7 @@ EstimarGanancia <- function(x) {
 
 # Establezco el Working Directory inicial
 setwd(PARAM$home)
+setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas") # Establezco el Working Directory
 
 # cargo los datos
 dataset <- fread("./datasets/competencia_01.csv")

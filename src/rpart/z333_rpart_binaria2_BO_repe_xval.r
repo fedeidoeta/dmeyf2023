@@ -21,15 +21,14 @@ require("mlrMBO")
 # Defino la  Optimizacion Bayesiana
 PARAM <- list()
 
-PARAM$home <- "~/buckets/b1/"
+PARAM$home <- "C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas"
 
 PARAM$experimento <- "HT3330"
 
 # Aqui van las 10 semillas que hacen el 10-repeated
 #  si se pone una sola semilla, se esta haciendo solo 5-fold xval
 PARAM$semilla_azar <- c(
-  102191, 200177, 410551, 552581, 892237,
-  753587, 247759, 253369, 955127, 800519
+  270001
 )
 
 # folds del cross validation
@@ -51,7 +50,7 @@ PARAM$hs <- makeParamSet(
 
 
 # este valor debe ser 1 si se utiliza Windows
-PARAM$cores <- 5
+PARAM$cores <- 1
 
 #------------------------------------------------------------------------------
 # graba a un archivo los componentes de lista
