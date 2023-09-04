@@ -7,7 +7,7 @@ require("parallel")
 
 PARAM <- list()
 # reemplazar por las propias semillas
-PARAM$semillas <- c(1270001, 270029, 270031, 270037, 270059)
+PARAM$semillas <- c(270001, 270029, 270031, 270037, 270059)
 
 #------------------------------------------------------------------------------
 # particionar agrega una columna llamada fold a un dataset que consiste
@@ -123,3 +123,4 @@ tb_salida[, mean(ganancia_test)]
 tb_salida[, lapply(.SD, mean)]
 
 # desvio estandar Distribucion Binomial   sqrt( n * p * (1-p) )
+
