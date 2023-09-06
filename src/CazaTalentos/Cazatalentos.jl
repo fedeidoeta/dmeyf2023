@@ -261,6 +261,76 @@ print("Diferencia de la elegida: ", suma_diferencias_elegida/primera_ganadora)
 print("Promedio aciertos de la elegida: ", prom_aciertos_elegida / primera_ganadora)
 print("Cantidad de veces que la elegida quedo primera ", primera_ganadora)
 
+################### Cazatalentos 5 #####################
+# Adolescentes: 100
+# Tiros: 100
+# se eligen 5 de la primer ronda
+# 2 rondas de 100 tiros
+
+
+using Random
+
+
+Random.seed!(270001)
+
+
+# calcula cuántos encestes logra una jugadora con índice de enceste prob
+# haciendo qty tiros libres
+function ftirar(prob, qty)
+    return sum(rand() < prob for i in 1:qty)
+end
+
+
+# Defino las jugadoras
+mejores = [0.85, 0.84, 0.84, 0.82, 0.81]
+peloton = Float64[]
+
+
+# Generamos 95 números aleatorios entre 0.1 y 0.8 con un decimal
+for i in 1:95
+    numero_aleatorio = round(rand(0.10:0.01:0.80), digits=1)
+    push!(peloton, numero_aleatorio)
+end
+
+
+jugadoras = append!(mejores, peloton)
+jugadoras = sort(jugadoras, rev=true)
+
+
+# Veo qué tiene el vector
+jugadoras
+
+
+jugadoras_ronda2 = [0.69, 0.74, 0.74, 0.70, 0.75]
+jugadoras_ronda3 = [0.70, 0.76, 0.75, 0.73, 0.74]
+
+
+global primera_ganadora = 0
+
+
+for i = 1:10000
+    # Realizamos 100 tiros libres para todas las jugadoras en la primera ronda
+    vaciertos = ftirar.(jugadoras, 100)
+   
+    # Selecciono las 5 mejores jugadoras de la primera ronda
+    mejores_rondas = sortperm(vaciertos, rev=true)[1:5]
+
+
+    # Verificamos si la jugadora con valor 0.85 está en primer lugar (puntaje máximo)
+    if findfirst(jugadoras[mejores_rondas] .== 0.85) == 1
+        aciertos_segunda = ftirar(jugadoras_ronda2[1], 100)  # cuento cantidad de aciertos
+        aciertos_tercera = ftirar(jugadoras_ronda3[1], 100)  # cuento cantidad de aciertos
+       
+        if aciertos_segunda >= 69 && aciertos_tercera >= 69
+            global primera_ganadora += 1
+        end
+    end
+end
+
+
+println(primera_ganadora)
+
+
 ################### Cazatalentos 6 #####################
 
 """
