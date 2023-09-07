@@ -30,19 +30,22 @@ sort!(jugadoras, rev=true)
 jugadoras
 
 # hago que las 100 jugadoras tiren 10 veces cada una
-res = ftirar.(jugadoras, 10)
+ftirar.(jugadoras, 100)
 
 global primera_ganadora = 0
+global suma_aciertos = 0
 
 for i = 1:10000  # diez mil experimentos
   vaciertos = ftirar.(jugadoras, 100)  # 10 tiros libres cada jugadora
   mejor_ronda = findmax(vaciertos)
   if mejor_ronda[2] == 1
     global primera_ganadora += 1
-  end
+  end  
+  global suma_aciertos += vaciertos[1]
 end
 
 print(primera_ganadora)
+println("Probabilidad de enceste:", suma_aciertos/(10000*100))
 
 ################### Cazatalentos 2 #####################
 # Adolescentes: 200
@@ -261,7 +264,7 @@ print("Diferencia de la elegida: ", suma_diferencias_elegida/primera_ganadora)
 print("Promedio aciertos de la elegida: ", prom_aciertos_elegida / primera_ganadora)
 print("Cantidad de veces que la elegida quedo primera ", primera_ganadora)
 
-################### Cazatalentos 5 #####################
+################### Cazatalentos 5 V2 #####################
 # Adolescentes: 100
 # Tiros: 100
 # se eligen 5 de la primer ronda
@@ -314,7 +317,6 @@ for i = 1:10000
    
     # Selecciono las 5 mejores jugadoras de la primera ronda
     mejores_rondas = sortperm(vaciertos, rev=true)[1:5]
-
 
     # Verificamos si la jugadora con valor 0.85 está en primer lugar (puntaje máximo)
     if findfirst(jugadoras[mejores_rondas] .== 0.85) == 1
@@ -434,35 +436,23 @@ function ftirar(prob, qty)
   return sum(rand() < prob for i in 1:qty)
 end
 
-# defino las jugadoras
-jugadoras_ronda1 = Float64[]
-
-# Generamos 99 números aleatorios entre 0.10 y 0.85 con un decimal
-for i in 1:100
-    numero_aleatorio = round(rand(0.01:0.10:0.85), digits=12)
-    push!(jugadoras_ronda1, numero_aleatorio)
-end
-
-jugadoras_ronda1 = sort(jugadoras_ronda1, rev=true)
-jugadoras_ronda1
-
 #defino las jugadoras de la segunda ronda
 jugadoras_ronda2 = [0.80, 0.79, 0.78, 0.77, 0.72]
 jugadoras_ronda2
 
-contador = 0
+global primera_ganadora = 0
 
 # Iterar sobre las simulaciones
 for i = 1:10000
-    vaciertos = ftirar.(jugadoras_ronda1, 100)
-    mejor_ronda = sortperm(vaciertos, rev=true)[1:5]
+    vaciertos = ftirar.(jugadoras_ronda2, 100)
+    mejor_ronda_1 = findmax(vaciertos)
     #aciertos_segunda = ftirar.(jugadoras_ronda2[mejor_ronda], 100) #Se estan ingresando indices del vector por fuera de los 5 definidos
-    if mejor_ronda[1] <= 5
-        contador += 1
+    if mejor_ronda_1[2] == 1
+        global primera_ganadora += 1
     end
 end
 
-println(contador)
+println(primera_ganadora)
 
 
 ################### Cazatalentos 8 #####################
@@ -560,3 +550,100 @@ for i = 1:10000  # diez mil experimentos
 end
 
 print(primera_ganadora)
+
+
+
+################### Cazatalentos 9 #####################
+# Adolescentes: 1
+# Tiros: 100
+# Rondas: 10
+#Lo pienso como un vector de 10 jugadoras (en primera instancia)
+
+
+
+
+"""
+Cito el texto: esta deshonestidad de la Cazatalentos 9 no debería parecerle extraña, es exactamente lo mismo
+que elegir cómo submit final el que le fue mejor en el Public Leaderboard, algo muy común entre
+los alumnos ...
+"""
+
+
+using Random
+Random.seed!(270001)
+
+# calcula cuantos encestes logra una jugadora con indice de enceste prob
+# haciendo qyt tiros libres
+
+function ftirar(prob, qty)
+  return sum(rand() < prob for i in 1:qty)
+end
+
+# defino el vector de las 10 tiradas de la jugadora
+jugadora = [0.68,0.74,0.78,0.70,0.68,0.63,0.80,0.68,0.67,0.65]
+
+jugadora_2 = mean(jugadora)
+
+sort(jugadora, rev=true)
+
+# veo que tiene el vector
+jugadora
+
+ftirar.(jugadora_2, 100)
+
+global primera_ganadora = 0
+global suma_aciertos = 0
+
+for i = 1:10000  # diez mil experimentos
+  vaciertos = ftirar.(jugadora_2, 100)  # 100 tiros libres de la jugadora en cada ronda
+  if vaciertos >= 80
+    global primera_ganadora += 1
+    end
+global suma_aciertos += vaciertos
+end
+
+println("Número de rondas con 80 o más aciertos:", primera_ganadora)
+
+println("Probabilidad de enceste:", suma_aciertos/(10000*100))
+
+#########################################################################
+
+
+# intencionalmente la mejor jugadora va al final de la lista de jugadoras
+# porque la funcion findmax() de Julia hace trampa
+# si hay un empate ( dos máximos) se queda con el que esta primero en el vector
+using Random
+
+Random.seed!(102191)
+
+function ftirar(prob, qty)
+  return  sum( rand() < prob for i in 1:qty )
+end
+
+
+# defino las jugadoras
+mejor   = [0.7]
+peloton = Vector((501:599) / 1000)
+jugadoras = append!(peloton, mejor) # intencionalmente el mejor esta al final
+
+
+function  explorar()
+
+  for tiros_libres in [100]
+
+    primera_ganadora = 0
+
+    for  i in  1:10000
+      vaciertos = ftirar.(jugadoras, tiros_libres)
+      mejor_ronda = findmax( vaciertos )[2]
+
+      if mejor_ronda == 100   primera_ganadora += 1  end
+    end
+
+    println( tiros_libres,  "\t", primera_ganadora/10000 )
+  end
+end
+
+
+@time  explorar()
+
