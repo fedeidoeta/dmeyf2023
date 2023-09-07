@@ -16,9 +16,9 @@ require("ggplot2")
 
 
 # Poner la carpeta de la materia de SU computadora local
-setwd("/home/aleb/dmeyf23/")
+setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas")
 # Poner sus semillas
-semillas <- c(17, 19, 23, 29, 31)
+semillas <- c(270001, 270029, 270031, 270037, 270059)
 
 # Cargamos el dataset
 dataset <- fread("./datasets/competencia_01.csv")
@@ -248,7 +248,7 @@ ggplot(hojasordenadas, aes(x = fpr, y = tpr)) +
 ## calidad del modelo.
 
 # Calculamos su área, necesita instalar el siguiente paquete
-# install.packages("geometry")
+#install.packages("geometry")
 require("geometry")
 
 x <- c(hojasordenadas$fpr,1)

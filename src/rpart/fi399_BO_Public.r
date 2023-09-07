@@ -264,3 +264,17 @@ if (!file.exists(archivo_BO)) {
 }
 # retomo en caso que ya exista
 
+###########################################################
+
+
+
+file <- "C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas/exp/HT3990/BO_log.txt"
+df_log <- read.table(file,                 # Archivo de datos TXT indicado como string o ruta completa al archivo
+           header = TRUE,       # Si se muestra el encabezado (TRUE) o no (FALSE)
+           sep = "",             # Separador de las columnas del archivo
+           dec = ".",
+           row.names = NULL,
+           col.names = c('fecha', 'hora', 'minsplit', 'minbucket', 'maxdepth', 'corte', 'cp', 'ganancia', 'iteracion'))            # Caracter utilizado para separar decimales de los números en el archivo
+logs <- data.frame(df_log)
+
+summary(logs)
