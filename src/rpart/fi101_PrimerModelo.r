@@ -1,16 +1,23 @@
 # Arbol elemental con libreria  rpart
 # Debe tener instaladas las librerias  data.table  ,  rpart  y  rpart.plot
 
+# limpio la memoria
+rm(list = ls()) # remove all objects
+gc() # garbage collection
+
 # cargo las librerias que necesito
 require("data.table")
 require("rpart")
 require("rpart.plot")
 
 # Aqui se debe poner la carpeta de la materia de SU computadora local
-setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas") # Establezco el Working Directory
+
+setwd("C:/Users/fidoeta/Documents/VS Code/Maestria")
 
 # cargo el dataset
 dataset <- fread("./datasets/competencia_01.csv")
+
+dataset[ , clase_binaria := ifelse( clase_ternaria=="CONTINUA", "NEG", "POS" ) ]
 
 dtrain <- dataset[foto_mes == 202103] # defino donde voy a entrenar
 dapply <- dataset[foto_mes == 202105] # defino donde voy a aplicar el modelo
@@ -18,11 +25,11 @@ dapply <- dataset[foto_mes == 202105] # defino donde voy a aplicar el modelo
 # genero el modelo,  aqui se construye el arbol
 # quiero predecir clase_ternaria a partir de el resto de las variables
 modelo <- rpart(
-        formula = "clase_ternaria ~ .",
+        formula = "clase_binaria ~ . - clase_ternaria",
         data = dtrain, # los datos donde voy a entrenar
         xval = 0,
-        cp = -0.3, # esto significa no limitar la complejidad de los splits
-        minsplit = 0, # minima cantidad de registros para que se haga el split
+        cp = -1, # esto significa no limitar la complejidad de los splits
+        minsplit = 2, # minima cantidad de registros para que se haga el split
         minbucket = 1, # tamaño minimo de una hoja
         maxdepth = 3
 ) # profundidad maxima del arbol
@@ -33,6 +40,10 @@ prp(modelo,
         extra = 101, digits = -5,
         branch = 1, type = 4, varlen = 0, faclen = 0
 )
+
+pdf(file = "./arbol_corto.pdf", width=28, height=4)
+prp(modelo, extra=101, digits=5, branch=1, type=4, varlen=0, faclen=0)
+dev.off()
 
 
 summary(modelo)
