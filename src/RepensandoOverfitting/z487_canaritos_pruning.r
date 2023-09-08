@@ -6,7 +6,7 @@ require("data.table")
 require("rpart")
 require("rpart.plot")
 
-setwd("~/buckets/b1/") # establezco la carpeta donde voy a trabajar
+setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas") # establezco la carpeta donde voy a trabajar
 
 # cargo el dataset
 dataset <- fread("./datasets/competencia_01.csv")
@@ -17,7 +17,7 @@ setwd("./exp/EA4870")
 
 
 # uso esta semilla para los canaritos
-set.seed(102191)
+set.seed(270001)
 
 
 # agrego canaritos randomizados
@@ -83,3 +83,7 @@ entrega <- as.data.table(list(
 
 fwrite(entrega, paste0("stopping_at_canaritos.csv"), sep = ",")
 
+
+pdf(file = "./stopping_at_canaritos.pdf", width=28, height=4)
+prp(modelo_pruned, extra=101, digits=5, branch=1, type=4, varlen=0, faclen=0)
+dev.off()

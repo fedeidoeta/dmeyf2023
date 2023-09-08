@@ -22,17 +22,17 @@ require("mlrMBO")
 
 # Defino la  Optimizacion Bayesiana
 PARAM <- list()
-PARAM$experimento <- "HT3990"
+PARAM$experimento <- "HT3992"
 
 # cantidad de iteraciones de la Optimizacion Bayesiana
-PARAM$BO_iter <- 24  # iteraciones inteligentes   24= 40 - 4*4
+PARAM$BO_iter <- 100 # iteraciones inteligentes   24= 40 - 4*4
 
 #  de los hiperparametros
 PARAM$hs <- makeParamSet(
   makeIntegerParam("minsplit", lower = 500L, upper = 1500L),
   makeIntegerParam("minbucket", lower = 200L, upper = 800L),
   makeIntegerParam("maxdepth", lower = 6L, upper = 12L),
-  makeIntegerParam("corte", lower = 8000L, upper = 10000L),
+  #makeIntegerParam("corte", lower = 8000L, upper = 10000L),
   forbidden = quote(minbucket > 0.5 * minsplit)
 )
 # minbuket NO PUEDE ser mayor que la mitad de minsplit
@@ -105,7 +105,8 @@ ArbolSimple <- function( data, param, iteracion) {
   param2$cp <- -1
   param2$minsplit <- param$minsplit 
   param2$minbucket <- param$minbucket
-  param2$corte <- param$corte
+  param2$corte <- 9500 #param$corte
+  weights = pesos
 
   modelo <- rpart("clase_binaria ~ . - clase_ternaria",
     data = dtrain,
@@ -186,6 +187,10 @@ dapply <- dataset[foto_mes==202105]
 dapply[ , clase_ternaria := NA ]
 
 
+# definicion vector de pesos para oversampling
+pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ] )
+
+
 unique(dtrain$clase_ternaria)
 unique(dapply$clase_ternaria)
 
@@ -264,3 +269,22 @@ if (!file.exists(archivo_BO)) {
 }
 # retomo en caso que ya exista
 
+###########################################################
+
+
+
+file <- "C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas/exp/HT3990/BO_log.txt"
+df_log <- read.table(file,                 # Archivo de datos TXT indicado como string o ruta completa al archivo
+           header = TRUE,       # Si se muestra el encabezado (TRUE) o no (FALSE)
+           sep = "",             # Separador de las columnas del archivo
+           dec = ".",
+           row.names = NULL,
+           col.names = c('fecha', 'hora', 'minsplit', 'minbucket', 'maxdepth', 'corte', 'cp', 'ganancia', 'iteracion'))            # Caracter utilizado para separar decimales de los números en el archivo
+logs <- data.frame(df_log)
+
+summary(logs)
+
+
+
+# weight en rpart: se puede pasar los pesos de las clases se multiplica *100 a los positivos  (BAJA +2 y BAJA+1)
+# hacer una arbol chico y ver las variables por las que elige, con eso binarizar

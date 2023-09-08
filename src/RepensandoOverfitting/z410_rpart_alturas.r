@@ -5,15 +5,17 @@ gc()             #garbage collection
 require("data.table")
 require("rpart")
 
-setwd("." )  #establezco la carpeta donde voy a trabajar
+setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas")  #establezco la carpeta donde voy a trabajar
 #cargo el dataset
-dataset  <- fread( "./competencia_01.csv", na.strings="")
+dataset <- fread("./datasets/competencia_01.csv")
 
 dataset[ foto_mes == 202103 ,
 				clase_binaria:= ifelse( clase_ternaria=="BAJA+2", "POS","NEG" ) ]
 
 dataset_entrenar <- dataset[ foto_mes == 202103 ]
 dataset_aplicar <- dataset[ foto_mes == 202105 ]
+
+dataset_aplicar[ , clase_ternaria := NA ]
 
 for( vmaxdepth  in 4:25 )
 {
@@ -49,6 +51,6 @@ for( vmaxdepth  in 4:25 )
 
   #genero el archivo para Kaggle
   fwrite( entrega,
-          file= paste0("./kaggle/altura_", vmaxdepth, ".csv"))
+          file= paste0("./exp/altura_", vmaxdepth, ".csv"))
 }
 

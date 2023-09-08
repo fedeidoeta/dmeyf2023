@@ -21,11 +21,12 @@ require("rpart")
 require("ROCR")
 require("ggplot2")
 
+#install.packages("ROCR")
 
 # Poner la carpeta de la materia de SU computadora local
-setwd("/home/aleb/dmeyf23")
+setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas")
 # Poner sus semillas
-semillas <- c(17, 19, 23, 29, 31)
+semillas <- c(270001, 270029, 270031, 270037, 270059)
 
 # Cargamos el dataset
 dataset <- fread("./datasets/competencia_01.csv")
@@ -43,7 +44,7 @@ dataset[, clase_ternaria := NULL]
 
 # Seteamos nuestra primera semilla
 set.seed(semillas[1])
-
+#install.packages("caret")
 # Particionamos de forma estratificada
 in_training <- caret::createDataPartition(dataset$clase_binaria,
                      p = 0.70, list = FALSE) 
