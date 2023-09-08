@@ -22,7 +22,7 @@ require("mlrMBO")
 
 # Defino la  Optimizacion Bayesiana
 PARAM <- list()
-PARAM$experimento <- "HT3991"
+PARAM$experimento <- "HT3992"
 
 # cantidad de iteraciones de la Optimizacion Bayesiana
 PARAM$BO_iter <- 100 # iteraciones inteligentes   24= 40 - 4*4
@@ -32,7 +32,7 @@ PARAM$hs <- makeParamSet(
   makeIntegerParam("minsplit", lower = 500L, upper = 1500L),
   makeIntegerParam("minbucket", lower = 200L, upper = 800L),
   makeIntegerParam("maxdepth", lower = 6L, upper = 12L),
-  makeIntegerParam("corte", lower = 8000L, upper = 10000L),
+  #makeIntegerParam("corte", lower = 8000L, upper = 10000L),
   forbidden = quote(minbucket > 0.5 * minsplit)
 )
 # minbuket NO PUEDE ser mayor que la mitad de minsplit
