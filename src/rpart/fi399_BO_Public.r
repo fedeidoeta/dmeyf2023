@@ -22,10 +22,10 @@ require("mlrMBO")
 
 # Defino la  Optimizacion Bayesiana
 PARAM <- list()
-PARAM$experimento <- "HT3990"
+PARAM$experimento <- "HT3991"
 
 # cantidad de iteraciones de la Optimizacion Bayesiana
-PARAM$BO_iter <- 24  # iteraciones inteligentes   24= 40 - 4*4
+PARAM$BO_iter <- 100 # iteraciones inteligentes   24= 40 - 4*4
 
 #  de los hiperparametros
 PARAM$hs <- makeParamSet(
@@ -105,7 +105,8 @@ ArbolSimple <- function( data, param, iteracion) {
   param2$cp <- -1
   param2$minsplit <- param$minsplit 
   param2$minbucket <- param$minbucket
-  param2$corte <- param$corte
+  param2$corte <- 9500 #param$corte
+  weights = pesos
 
   modelo <- rpart("clase_binaria ~ . - clase_ternaria",
     data = dtrain,
@@ -184,6 +185,10 @@ dtrain <- dataset[foto_mes==202103]
 dapply <- dataset[foto_mes==202105]
 
 dapply[ , clase_ternaria := NA ]
+
+
+# definicion vector de pesos para oversampling
+pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ] )
 
 
 unique(dtrain$clase_ternaria)
@@ -278,3 +283,8 @@ df_log <- read.table(file,                 # Archivo de datos TXT indicado como 
 logs <- data.frame(df_log)
 
 summary(logs)
+
+
+
+# weight en rpart: se puede pasar los pesos de las clases se multiplica *100 a los positivos  (BAJA +2 y BAJA+1)
+# hacer una arbol chico y ver las variables por las que elige, con eso binarizar
