@@ -6,7 +6,7 @@ require("data.table")
 require("rpart")
 require("rpart.plot")
 
-setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas") # establezco la carpeta donde voy a trabajar
+setwd("C:/Users/fidoeta/Documents/VS Code/Maestria") # establezco la carpeta donde voy a trabajar
 
 # cargo el dataset
 dataset <- fread("./datasets/competencia_01.csv")
@@ -35,6 +35,8 @@ dataset2[ , azar := NULL ]  # borra azar
 
 columnas <- copy(colnames(dataset2))
 
+columnas
+
 # creo efectivamente los canaritos
 #  1/5  de las variables del dataset
 for( i in sample( 1:ncol(dataset2) , round( ncol(dataset)/5 ) )  )
@@ -42,7 +44,7 @@ for( i in sample( 1:ncol(dataset2) , round( ncol(dataset)/5 ) )  )
   dataset[, paste0("canarito", i) :=  dataset2[ , get(columnas[i]) ]  ]
 }
 
-
+head(dataset[foto_mes==202103])
 
 dtrain <- dataset[foto_mes == 202103]
 dapply <- dataset[foto_mes == 202105]
@@ -62,7 +64,7 @@ modelo_original <- rpart(
     minbucket = 1,
     maxdepth = 30
 )
-
+head(modelo_original$frame, 10)
 
 # hago el pruning de los canaritos
 # haciendo un hackeo a la estructura  modelo_original$frame
@@ -73,6 +75,8 @@ modelo_original$frame[
 ] <- -666
 
 modelo_pruned <- prune(modelo_original, -666)
+
+head(modelo_pruned$frame, 10)
 
 prediccion <- predict(modelo_pruned, dapply, type = "prob")[, "BAJA+2"]
 

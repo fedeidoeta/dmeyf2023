@@ -49,6 +49,8 @@ dapply <- dataset[foto_mes == 202105]
 dapply[ , clase_ternaria := NA ]
 
 # Seteo pesos para oversampling
+pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ])
+
 #dtrain[, pesos := ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ]
 
 # Dejo crecer el arbol sin ninguna limitacion
@@ -65,6 +67,7 @@ modelo_original <- rpart(
     minsplit = 2, # dejo que crezca y corte todo lo que quiera
     minbucket = 1,
     maxdepth = 30,
+    weight = pesos
 )
 head(modelo_original$frame, 10)
 
@@ -93,8 +96,8 @@ PARAM$corte <- 9500
 tablita[ , Predicted := 0L ]
 tablita[ 1:PARAM$corte, Predicted := 1L ]
 
-fwrite(tablita[ , list(numero_de_cliente, Predicted)], paste0("canaritos_9500.csv"), sep = ",")
+fwrite(tablita[ , list(numero_de_cliente, Predicted)], paste0("canaritos_9500_pesos.csv"), sep = ",")
 
-pdf(file = "./modelo_pruned.pdf", width=28, height=4)
+pdf(file = "./modelo_pruned_pesos.pdf", width=28, height=4)
 prp(modelo_pruned, extra=101, digits=5, branch=1, type=4, varlen=0, faclen=0)
 dev.off()
