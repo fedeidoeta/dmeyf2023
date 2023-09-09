@@ -69,7 +69,7 @@ modelo_original <- rpart(
     maxdepth = 30,
     weight = pesos
 )
-head(modelo_original$frame, 10)
+head(modelo_original$frame, 100)
 
 # hago el pruning de los canaritos
 # haciendo un hackeo a la estructura  modelo_original$frame

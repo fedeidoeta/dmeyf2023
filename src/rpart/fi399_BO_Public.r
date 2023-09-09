@@ -188,7 +188,7 @@ dapply[ , clase_ternaria := NA ]
 
 
 # definicion vector de pesos para oversampling
-pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ] )
+pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ])
 
 
 unique(dtrain$clase_ternaria)
