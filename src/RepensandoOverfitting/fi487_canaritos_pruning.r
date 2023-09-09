@@ -8,17 +8,17 @@ require("rpart.plot")
 
 setwd("C:/Users/fidoeta/Documents/VS Code/Maestria") # establezco la carpeta donde voy a trabajar
 
+PARAM <- list()
+
 # cargo el dataset
 dataset <- fread("./datasets/competencia_01.csv")
 
 dir.create("./exp/", showWarnings = FALSE)
-dir.create("./exp/EA4870/", showWarnings = FALSE)
-setwd("./exp/EA4870")
-
+dir.create("./exp/EA4871/", showWarnings = FALSE)
+setwd("./exp/EA4871")
 
 # uso esta semilla para los canaritos
 set.seed(270001)
-
 
 # agrego canaritos randomizados
 dataset2 <- copy(dataset)
@@ -35,19 +35,23 @@ dataset2[ , azar := NULL ]  # borra azar
 
 columnas <- copy(colnames(dataset2))
 
-columnas
-
 # creo efectivamente los canaritos
 #  1/5  de las variables del dataset
 for( i in sample( 1:ncol(dataset2) , round( ncol(dataset)/5 ) )  )
 {
   dataset[, paste0("canarito", i) :=  dataset2[ , get(columnas[i]) ]  ]
 }
-
-head(dataset[foto_mes==202103])
+# defino la clase_binaria2
+dataset[ , clase_binaria := ifelse( clase_ternaria=="CONTINUA", "NEG", "POS" ) ]
 
 dtrain <- dataset[foto_mes == 202103]
 dapply <- dataset[foto_mes == 202105]
+dapply[ , clase_ternaria := NA ]
+
+# Seteo pesos para oversampling
+pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ])
+
+#dtrain[, pesos := ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ]
 
 # Dejo crecer el arbol sin ninguna limitacion
 # sin limite de altura ( 30 es el maximo que permite rpart )
@@ -55,14 +59,15 @@ dapply <- dataset[foto_mes == 202105]
 # sin limite de minbukcet( 1 es el minimo natural )
 # los canaritos me protegeran
 modelo_original <- rpart(
-    formula = "clase_ternaria ~ .",
+    formula = "clase_binaria ~ . - clase_ternaria",
     data = dtrain,
     model = TRUE,
     xval = 0,
     cp = -1,
     minsplit = 2, # dejo que crezca y corte todo lo que quiera
     minbucket = 1,
-    maxdepth = 30
+    maxdepth = 30,
+    weight = pesos
 )
 head(modelo_original$frame, 10)
 
@@ -76,18 +81,23 @@ modelo_original$frame[
 
 modelo_pruned <- prune(modelo_original, -666)
 
-head(modelo_pruned$frame, 10)
+prediccion <- predict(modelo_pruned, dapply, type = "prob")
 
-prediccion <- predict(modelo_pruned, dapply, type = "prob")[, "BAJA+2"]
+# esta es la probabilidad de baja
+prob_baja <- prediccion[, "POS"]
 
-entrega <- as.data.table(list(
-    "numero_de_cliente" = dapply$numero_de_cliente,
-    "Predicted" = as.integer(prediccion > 0.025)
-))
+tablita <- copy( dapply[, list(numero_de_cliente) ] )
+tablita[ , prob := prob_baja ]
+setorder( tablita, -prob )
 
-fwrite(entrega, paste0("stopping_at_canaritos.csv"), sep = ",")
+PARAM$corte <- 9500
 
+# grabo el submit a Kaggle
+tablita[ , Predicted := 0L ]
+tablita[ 1:PARAM$corte, Predicted := 1L ]
 
-pdf(file = "./stopping_at_canaritos.pdf", width=28, height=4)
+fwrite(tablita[ , list(numero_de_cliente, Predicted)], paste0("canaritos_9500_pesos.csv"), sep = ",")
+
+pdf(file = "./modelo_pruned_pesos.pdf", width=28, height=4)
 prp(modelo_pruned, extra=101, digits=5, branch=1, type=4, varlen=0, faclen=0)
 dev.off()
