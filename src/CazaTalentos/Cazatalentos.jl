@@ -45,7 +45,42 @@ for i = 1:10000  # diez mil experimentos
 end
 
 print(primera_ganadora)
-println("Probabilidad de enceste:", suma_aciertos/(10000*100))
+println("Probabilidad de enceste: ", suma_aciertos/(10000*100))
+
+# Probabilidad de ser la mejor con 100 tiros
+
+for tiros_libres in [ 10, 20, 50, 100]
+
+  primera_ganadora = 0
+
+  for  i in  1:10000
+    vaciertos = ftirar.(jugadoras, tiros_libres)
+    mejor_ronda = findmax( vaciertos )[2]
+
+    if mejor_ronda == 1   primera_ganadora += 1  end
+  end
+
+  println( tiros_libres,  "\t", primera_ganadora/10000 )
+end
+
+# ¿Cuantos tiros necesito para tener un 99.9% de prob de que sea la mejor?
+
+for tiros_libres in [ 100, 30000]
+
+  primera_ganadora = 0
+
+  for  i in  1:10000
+    vaciertos = ftirar.(jugadoras, tiros_libres)
+    mejor_ronda = findmax( vaciertos )[2]
+
+    if mejor_ronda == 1   primera_ganadora += 1  end
+  end
+
+  println( tiros_libres,  "\t", primera_ganadora/10000 )
+end
+
+
+
 
 ################### Cazatalentos 2 #####################
 # Adolescentes: 200
@@ -100,6 +135,35 @@ end
 
 print(primera_ganadora)
 
+for tiros_libres in [ 10, 20, 50, 100]
+
+  primera_ganadora = 0
+
+  for  i in  1:10000
+    vaciertos = ftirar.(jugadoras, tiros_libres)
+    mejor_ronda = findmax( vaciertos )[2]
+
+    if mejor_ronda == 1   primera_ganadora += 1  end
+  end
+
+  println( tiros_libres,  "\t", primera_ganadora/10000 )
+end
+
+for tiros_libres in [100, 10000, 20000]
+
+  primera_ganadora = 0
+
+  for  i in  1:10000
+    vaciertos = ftirar.(jugadoras, tiros_libres)
+    mejor_ronda = findmax( vaciertos )[2]
+
+    if mejor_ronda == 1   primera_ganadora += 1  end
+  end
+
+  println( tiros_libres,  "\t", primera_ganadora/10000 )
+end
+
+
 ################### Cazatalentos 3 #####################
 # Adolescentes: 2
 # Tiros: 100
@@ -132,7 +196,7 @@ jugadoras
 global primera_ganadora = 0
 
 for i = 1:10000  # diez mil experimentos
-  vaciertos = ftirar.(jugadoras, 100)  # 100 tiros libres cada jugadora
+  vaciertos = ftirar.(jugadoras, 600)  # 100 tiros libres cada jugadora
   mejor_ronda = findmax(vaciertos)
   if mejor_ronda[2] == 1
     global primera_ganadora += 1
@@ -140,6 +204,21 @@ for i = 1:10000  # diez mil experimentos
 end
 
 print(primera_ganadora)
+
+for tiros_libres in [ 10, 20, 50, 100]
+
+  primera_ganadora = 0
+
+  for  i in  1:10000
+    vaciertos = ftirar.(jugadoras, tiros_libres)
+    mejor_ronda = findmax( vaciertos )[2]
+
+    if mejor_ronda == 1   primera_ganadora += 1  end
+  end
+
+  println( tiros_libres,  "\t", primera_ganadora/10000 )
+end
+
 
 ################### Cazatalentos 4 #####################
 # Adolescentes: 100
@@ -191,6 +270,21 @@ for i = 1:10000  # diez mil experimentos
 end
 
 print(primera_ganadora)
+
+for tiros_libres in [ 10, 20, 50, 100]
+
+  primera_ganadora = 0
+
+  for  i in  1:10000
+    vaciertos = ftirar.(jugadoras, tiros_libres)
+    mejor_ronda = findmax( vaciertos )[2]
+
+    if mejor_ronda == 1   primera_ganadora += 1  end
+  end
+
+  println( tiros_libres,  "\t", primera_ganadora/10000 )
+end
+
 
 ################### Cazatalentos 5 #####################
 # Adolescentes: 100
@@ -333,6 +427,22 @@ end
 println(primera_ganadora)
 
 
+for tiros_libres in [ 10, 20, 50, 100]
+
+  primera_ganadora = 0
+
+  for  i in  1:10000
+    vaciertos = ftirar.(jugadoras, tiros_libres)
+    mejor_ronda = findmax( vaciertos )[2]
+
+    if mejor_ronda == 1   primera_ganadora += 1  end
+  end
+
+  println( tiros_libres,  "\t", primera_ganadora/10000 )
+end
+
+
+
 ################### Cazatalentos 6 #####################
 
 """
@@ -353,18 +463,33 @@ function ftirar(prob, qty)
   return sum(rand() < prob for i in 1:qty)
 end
 
-jugadora = [0.8]
+jugadoras = [0.8]
 
 global primera_ganadora = 0
 
 for i = 1:10000  # diez mil experimentos
-  vaciertos = ftirar.(jugadora, 100)  # 10 tiros libres cada jugadora
+  vaciertos = ftirar.(jugadoras, 100)  # 10 tiros libres cada jugadora
   if vaciertos[1] > 80
     global primera_ganadora += 1
   end
 end
 
 print(primera_ganadora)
+
+for tiros_libres in [ 10, 20, 50, 100]
+
+  primera_ganadora = 0
+
+  for  i in  1:10000
+    vaciertos = ftirar.(jugadoras, tiros_libres)
+    mejor_ronda = findmax( vaciertos )[2]
+
+    if mejor_ronda == 1   primera_ganadora += 1  end
+  end
+
+  println( tiros_libres,  "\t", primera_ganadora/10000 )
+end
+
 
 ################### Cazatalentos 7 #####################
 
@@ -455,6 +580,22 @@ end
 println(primera_ganadora)
 
 
+for tiros_libres in [ 10, 20, 50, 100]
+
+  primera_ganadora = 0
+
+  for  i in  1:10000
+    vaciertos = ftirar.(jugadoras_ronda2, tiros_libres)
+    mejor_ronda = findmax( vaciertos )[2]
+
+    if mejor_ronda == 1   primera_ganadora += 1  end
+  end
+
+  println( tiros_libres,  "\t", primera_ganadora/10000 )
+end
+
+
+
 ################### Cazatalentos 8 #####################
 # Adolescentes: 100
 # Tiros: 100
@@ -502,6 +643,21 @@ for i = 1:10000  # diez mil experimentos
 end
 
 print(primera_ganadora)
+
+
+for tiros_libres in [ 10, 20, 50, 100]
+
+  primera_ganadora = 0
+
+  for  i in  1:10000
+    vaciertos = ftirar.(jugadoras, tiros_libres)
+    mejor_ronda = findmax( vaciertos )[2]
+
+    if mejor_ronda == 1   primera_ganadora += 1  end
+  end
+
+  println( tiros_libres,  "\t", primera_ganadora/10000 )
+end
 
 
 ################### Cazatalentos 9 #####################
@@ -568,6 +724,7 @@ que elegir cómo submit final el que le fue mejor en el Public Leaderboard, algo
 los alumnos ...
 """
 
+using Statistics
 
 using Random
 Random.seed!(270001)
@@ -605,6 +762,23 @@ end
 println("Número de rondas con 80 o más aciertos:", primera_ganadora)
 
 println("Probabilidad de enceste:", suma_aciertos/(10000*100))
+
+
+for tiros_libres in [ 10, 20, 50, 100]
+
+  primera_ganadora = 0
+
+  for  i in  1:10000
+    vaciertos = ftirar.(jugadoras, tiros_libres)
+    mejor_ronda = findmax( vaciertos )[2]
+
+    if mejor_ronda == 1   primera_ganadora += 1  end
+  end
+
+  println( tiros_libres,  "\t", primera_ganadora/10000 )
+end
+
+
 
 #########################################################################
 
