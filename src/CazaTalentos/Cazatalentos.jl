@@ -1,21 +1,19 @@
-############## Cazatalentos 1 #####################
-# Adolescentes: 100
-# Tiros: 100
-
-"""
-Las 100 adolescentes son los cambios que hacemos en nuestros hiperparametros y dataset, 
-probar 100 veces cada uno le daria consistencia a los resultados
-"""
-
 using Random
+using Statistics
 Random.seed!(270001)
 
 # calcula cuantos encestes logra una jugadora con indice de enceste prob
-# haciendo qyt tiros libres
 
 function ftirar(prob, qty)
   return sum(rand() < prob for i in 1:qty)
 end
+
+
+############## Cazatalentos 1 #####################
+# Adolescentes: 100
+# Tiros: 100
+
+cantidad_adol = 100
 
 # defino las jugadoras
 mejor = [0.8]
@@ -44,62 +42,18 @@ for i = 1:10000  # diez mil experimentos
   global suma_aciertos += vaciertos[1]
 end
 
-print(primera_ganadora)
-println("Probabilidad de enceste: ", suma_aciertos/(10000*100))
+desvio = sqrt(mejor[1]*(1-mejor[1])/100)
 
-# Probabilidad de ser la mejor con 100 tiros
-
-for tiros_libres in [ 10, 20, 50, 100]
-
-  primera_ganadora = 0
-
-  for  i in  1:10000
-    vaciertos = ftirar.(jugadoras, tiros_libres)
-    mejor_ronda = findmax( vaciertos )[2]
-
-    if mejor_ronda == 1   primera_ganadora += 1  end
-  end
-
-  println( tiros_libres,  "\t", primera_ganadora/10000 )
-end
-
-# ¿Cuantos tiros necesito para tener un 99.9% de prob de que sea la mejor?
-
-for tiros_libres in [ 100, 30000]
-
-  primera_ganadora = 0
-
-  for  i in  1:10000
-    vaciertos = ftirar.(jugadoras, tiros_libres)
-    mejor_ronda = findmax( vaciertos )[2]
-
-    if mejor_ronda == 1   primera_ganadora += 1  end
-  end
-
-  println( tiros_libres,  "\t", primera_ganadora/10000 )
-end
-
-
-
+print("Probabilidad de ser la primera de su grupo: ",primera_ganadora/10000)
+print("Estandarizada a 100 jugadoras: ",round(primera_ganadora*sqrt(cantidad_adol/100)/10000, digits = 4))
+print("Probilidad de enceste de la jugadora elegida (CI): ", mejor[1]-1.96*desvio)
+print("Desvio std: ", desvio)
 
 ################### Cazatalentos 2 #####################
 # Adolescentes: 200
 # Tiros: 100
 
-"""
-Las 200 adolescentes son los cambios que hacemos en nuestros hiperparametros y dataset, 
-probar 100 veces cada uno le daria consistencia a los resultados
-"""
-
-using Random
-Random.seed!(270001)
-
-# calcula cuantos encestes logra una jugadora con indice de enceste prob
-# haciendo qyt tiros libres
-
-function ftirar(prob, qty)
-  return sum(rand() < prob for i in 1:qty)
-end
+cantidad_adol = 200
 
 # defino las jugadoras
 mejor = [0.8]
@@ -120,9 +74,6 @@ jugadoras
 sort!(jugadoras, rev=true)
 jugadoras
 
-# hago que las 100 jugadoras tiren 10 veces cada una
-res = ftirar.(jugadoras, 10)
-
 global primera_ganadora = 0
 
 for i = 1:10000  # diez mil experimentos
@@ -135,52 +86,19 @@ end
 
 print(primera_ganadora)
 
-for tiros_libres in [ 10, 20, 50, 100]
+desvio = sqrt(mejor[1]*(1-mejor[1])/100)
 
-  primera_ganadora = 0
-
-  for  i in  1:10000
-    vaciertos = ftirar.(jugadoras, tiros_libres)
-    mejor_ronda = findmax( vaciertos )[2]
-
-    if mejor_ronda == 1   primera_ganadora += 1  end
-  end
-
-  println( tiros_libres,  "\t", primera_ganadora/10000 )
-end
-
-for tiros_libres in [100, 10000, 20000]
-
-  primera_ganadora = 0
-
-  for  i in  1:10000
-    vaciertos = ftirar.(jugadoras, tiros_libres)
-    mejor_ronda = findmax( vaciertos )[2]
-
-    if mejor_ronda == 1   primera_ganadora += 1  end
-  end
-
-  println( tiros_libres,  "\t", primera_ganadora/10000 )
-end
+print("Probabilidad de ser la primera de su grupo: ",primera_ganadora/10000)
+print("Estandarizada a 100 jugadoras: ",round(primera_ganadora*sqrt(cantidad_adol/100)/10000, digits = 4))
+print("Probilidad de enceste de la jugadora elegida (CI): ", mejor[1]-1.96*desvio)
+print("Desvio std: ", desvio)
 
 
 ################### Cazatalentos 3 #####################
 # Adolescentes: 2
 # Tiros: 100
 
-"""
-Lo entiendo como pocos cambios en el local, pero muchas pruebas en Kaggle corriendo el riesgo de overfittear el pulico.
-"""
-
-using Random
-Random.seed!(270001)
-
-# calcula cuantos encestes logra una jugadora con indice de enceste prob
-# haciendo qyt tiros libres
-
-function ftirar(prob, qty)
-  return sum(rand() < prob for i in 1:qty)
-end
+cantidad_adol = 2
 
 # defino las jugadoras
 jugadora_1 = [0.8]
@@ -196,50 +114,25 @@ jugadoras
 global primera_ganadora = 0
 
 for i = 1:10000  # diez mil experimentos
-  vaciertos = ftirar.(jugadoras, 600)  # 100 tiros libres cada jugadora
+  vaciertos = ftirar.(jugadoras, 100)  # 100 tiros libres cada jugadora
   mejor_ronda = findmax(vaciertos)
   if mejor_ronda[2] == 1
     global primera_ganadora += 1
   end
 end
 
-print(primera_ganadora)
+desvio = sqrt(jugadora_1[1]*(1-jugadora_1[1])/100)
 
-for tiros_libres in [ 10, 20, 50, 100]
-
-  primera_ganadora = 0
-
-  for  i in  1:10000
-    vaciertos = ftirar.(jugadoras, tiros_libres)
-    mejor_ronda = findmax( vaciertos )[2]
-
-    if mejor_ronda == 1   primera_ganadora += 1  end
-  end
-
-  println( tiros_libres,  "\t", primera_ganadora/10000 )
-end
-
+print("Probabilidad de ser la primera de su grupo: ",primera_ganadora/10000)
+print("Estandarizada a 100 jugadoras: ",round(primera_ganadora*sqrt(cantidad_adol/100)/10000, digits = 4))
+print("Probilidad de enceste de la jugadora elegida (CI): ", jugadora_1[1]-1.96*desvio)
+print("Desvio std: ", desvio)
 
 ################### Cazatalentos 4 #####################
 # Adolescentes: 100
 # Tiros: 10
 
-
-"""
-Este somos nosotros en Kaggle, hacemos varios cambios muchos cambios en el local pero pocas subidas 
-y nos terminamos quedando con el mejor en el publico, es un criterio "debil".
-"""
-
-using Random
-
-Random.seed!(270001)
-
-# calcula cuantos encestes logra una jugadora con indice de enceste prob
-# haciendo qyt tiros libres
-
-function ftirar(prob, qty)
-  return sum(rand() < prob for i in 1:qty)
-end
+cantidad_adol = 100
 
 # defino las jugadoras
 mejor = [0.9]
@@ -269,114 +162,21 @@ for i = 1:10000  # diez mil experimentos
   end
 end
 
-print(primera_ganadora)
+desvio = sqrt(mejor[1]*(1-mejor[1])/10)
 
-for tiros_libres in [ 10, 20, 50, 100]
-
-  primera_ganadora = 0
-
-  for  i in  1:10000
-    vaciertos = ftirar.(jugadoras, tiros_libres)
-    mejor_ronda = findmax( vaciertos )[2]
-
-    if mejor_ronda == 1   primera_ganadora += 1  end
-  end
-
-  println( tiros_libres,  "\t", primera_ganadora/10000 )
-end
+print("Probabilidad de ser la primera de su grupo: ",primera_ganadora/10000)
+print("Estandarizada a 100 jugadoras: ",round(primera_ganadora*sqrt(cantidad_adol/100)/10000, digits = 4))
+print("Probilidad de enceste de la jugadora elegida (CI): ", mejor[1]-1.96*desvio)
+print("Desvio std: ", desvio)
 
 
 ################### Cazatalentos 5 #####################
 # Adolescentes: 100
 # Tiros: 100
-# Rondas: 3
-
-"""
-Lo entiendo como quedarme con los 5 mejores modelos que funcionan en el local e ir haciendo algunos cambios subiendolos a Kaggle
-"""
-
-using Random
-Random.seed!(270001)
-
-# calcula cuantos encestes logra una jugadora con indice de enceste prob
-# haciendo qyt tiros libres
-
-function ftirar(prob, qty)
-  return sum(rand() < prob for i in 1:qty)
-end
-
-using Statistics
-
-# defino las jugadoras
-jugadora_a = [mean([0.85, 0.69, 0.7])]
-jugadora_b = [mean([0.84, 0.74, 0.76])]
-jugadora_c = [mean([0.84, 0.74, 0.75])]
-jugadora_d = [mean([0.82, 0.70, 0.73])]
-jugadora_e = [mean([0.81, 0.75, 0.74])]
-
-jugadoras = []
-
-jugadoras = append!(jugadora_a,jugadora_b, jugadora_c, jugadora_d, jugadora_e)
-
-# veo que tiene el vector
-jugadoras
-
-global primera_ganadora = 0
-global suma_diferencias = 0
-global suma_diferencias_2 = 0
-global prom_aciertos = 0
-
-global suma_diferencias_elegida = 0
-global suma_diferencias_2_elegida = 0
-global prom_aciertos_elegida = 0
-
-for i = 1:10000  # diez mil experimentos
-    vaciertos = ftirar.(jugadoras, 100)  # 100 tiros libres cada jugadora
-    mejor_ronda = findmax(vaciertos)[2]
-    mejor_ronda_1 = findmax(vaciertos)
-    aciertos_torneo = vaciertos[mejor_ronda]
-    aciertos_segunda = ftirar.(jugadoras[mejor_ronda], 100)
-    aciertos_tercera = ftirar.(jugadoras[mejor_ronda], 100)
-    global suma_diferencias += (aciertos_torneo - aciertos_segunda)
-    global suma_diferencias_2 += (aciertos_torneo - aciertos_tercera)
-    global prom_aciertos += mean([aciertos_torneo, aciertos_segunda, aciertos_tercera])
-    #println(aciertos_torneo, "\t", aciertos_segunda, "\t", aciertos_tercera)
-    
-    #me quedo con los valores de la jugadora A para conocer sus estadisticas.
-  if mejor_ronda_1[2] == 1
-    global primera_ganadora += 1
-    global suma_diferencias_elegida += (aciertos_torneo - aciertos_segunda)
-    global suma_diferencias_2_elegida += (aciertos_torneo - aciertos_tercera)
-    global prom_aciertos_elegida += mean([aciertos_torneo, aciertos_segunda, aciertos_tercera])
-  end
-end
-print("Diferencia general: ", suma_diferencias / 10000)
-print("Promedio aciertos general: ", prom_aciertos / 10000)
-print("Cantidad de veces que la elegida quedo primera ", primera_ganadora)
-
-print("Diferencia de la elegida: ", suma_diferencias_elegida/primera_ganadora)
-print("Promedio aciertos de la elegida: ", prom_aciertos_elegida / primera_ganadora)
-print("Cantidad de veces que la elegida quedo primera ", primera_ganadora)
-
-################### Cazatalentos 5 V2 #####################
-# Adolescentes: 100
-# Tiros: 100
 # se eligen 5 de la primer ronda
 # 2 rondas de 100 tiros
 
-
-using Random
-
-
-Random.seed!(270001)
-
-
-# calcula cuántos encestes logra una jugadora con índice de enceste prob
-# haciendo qty tiros libres
-function ftirar(prob, qty)
-    return sum(rand() < prob for i in 1:qty)
-end
-
+cantidad_adol = 100
 
 # Defino las jugadoras
 mejores = [0.85, 0.84, 0.84, 0.82, 0.81]
@@ -397,13 +197,12 @@ jugadoras = sort(jugadoras, rev=true)
 # Veo qué tiene el vector
 jugadoras
 
-
 jugadoras_ronda2 = [0.69, 0.74, 0.74, 0.70, 0.75]
 jugadoras_ronda3 = [0.70, 0.76, 0.75, 0.73, 0.74]
 
+mejor = mean([0.85, 0.69, 0.7])
 
 global primera_ganadora = 0
-
 
 for i = 1:10000
     # Realizamos 100 tiros libres para todas las jugadoras en la primera ronda
@@ -417,51 +216,28 @@ for i = 1:10000
         aciertos_segunda = ftirar(jugadoras_ronda2[1], 100)  # cuento cantidad de aciertos
         aciertos_tercera = ftirar(jugadoras_ronda3[1], 100)  # cuento cantidad de aciertos
        
-        if aciertos_segunda >= 69 && aciertos_tercera >= 69
+        if aciertos_segunda >= 69 && aciertos_tercera >= 70
             global primera_ganadora += 1
         end
     end
 end
 
 
-println(primera_ganadora)
+desvio = sqrt(mejor*(1-mejor)/300)
 
-
-for tiros_libres in [ 10, 20, 50, 100]
-
-  primera_ganadora = 0
-
-  for  i in  1:10000
-    vaciertos = ftirar.(jugadoras, tiros_libres)
-    mejor_ronda = findmax( vaciertos )[2]
-
-    if mejor_ronda == 1   primera_ganadora += 1  end
-  end
-
-  println( tiros_libres,  "\t", primera_ganadora/10000 )
-end
-
+print("Probabilidad de ser la primera de su grupo: ",primera_ganadora/10000)
+print("Estandarizada a 100 jugadoras: ",round(primera_ganadora*sqrt(cantidad_adol/100)/10000, digits = 4))
+print("Probilidad de enceste de la jugadora elegida (CI): ", mejor-1.96*desvio)
+print("Desvio std: ", desvio)
 
 
 ################### Cazatalentos 6 #####################
+# Adolescentes: 100
+# Tiros: 100
+# se eligen 5 de la primer ronda
+# 2 rondas de 100 tiros
 
-"""
-Esto seria como entrenar el modelo en local, ver su performance y cuando estoy confiado subo el resultado a Kaggle. Muy arriesgado
-"""
-
-#Adolescentes = 100
-# Solo 1 prueba
-
-
-using Random
-Random.seed!(270001)
-
-# calcula cuantos encestes logra una jugadora con indice de enceste prob
-# haciendo qyt tiros libres
-
-function ftirar(prob, qty)
-  return sum(rand() < prob for i in 1:qty)
-end
+cantidad_adol = 100
 
 jugadoras = [0.8]
 
@@ -469,151 +245,51 @@ global primera_ganadora = 0
 
 for i = 1:10000  # diez mil experimentos
   vaciertos = ftirar.(jugadoras, 100)  # 10 tiros libres cada jugadora
-  if vaciertos[1] > 80
+  if vaciertos[1] >= 80
     global primera_ganadora += 1
   end
 end
 
-print(primera_ganadora)
 
-for tiros_libres in [ 10, 20, 50, 100]
+desvio = sqrt(jugadoras[1]*(1-jugadoras[1])/100)
 
-  primera_ganadora = 0
+print("Probabilidad de ser la primera de su grupo: ",primera_ganadora/10000)
+print("Estandarizada a 100 jugadoras: ",round(primera_ganadora*sqrt(length(cantidad_adol/100))/10000, digits = 4))
+print("Probilidad de enceste de la jugadora elegida (CI): ", jugadoras[1]-1.96*desvio)
+print("Desvio std: ", desvio)
 
-  for  i in  1:10000
-    vaciertos = ftirar.(jugadoras, tiros_libres)
-    mejor_ronda = findmax( vaciertos )[2]
+############################# Cazatalentos 7 ##########################
+#Adolescentes = 100
+#Solo 1 prueba
 
-    if mejor_ronda == 1   primera_ganadora += 1  end
-  end
-
-  println( tiros_libres,  "\t", primera_ganadora/10000 )
-end
-
-
-################### Cazatalentos 7 #####################
-
-# Adolescentes: 100
-# Tiros: 100
-# Rondas: 3
-
-"""
-Probar 100 veces a cada una, le da certidumbre de la eleccion de las mejores 5 y probar nuevamente 100 veces a cada una, reafirma la eleccion.
-El problema que veo es que no sabemos como dieron en la primera vuelta.
-"""
-
-using Random
-Random.seed!(270001)
-
-# calcula cuantos encestes logra una jugadora con indice de enceste prob
-# haciendo qyt tiros libres
-
-function ftirar(prob, qty)
-  return sum(rand() < prob for i in 1:qty)
-end
-
-# defino las jugadoras
-jugadora_a = [0.8]
-jugadora_b = [0.79]
-jugadora_c = [0.78]
-jugadora_d = [0.77]
-jugadora_e = [0.72]
-jugadoras = append!(jugadora_a,jugadora_b, jugadora_c, jugadora_d, jugadora_e)
-
-
-# veo que tiene el vector
-jugadoras
-
-global primera_ganadora = 0
-global primera_ganadora_2 = 0
-
-for i = 1:10000  # diez mil experimentos
-  vaciertos = ftirar.(jugadoras, 100) 
-  mejor_ronda = findmax(vaciertos)[2]
-  mejor_ronda_1 = findmax(vaciertos)
-  aciertos_torneo = vaciertos[mejor_ronda]
-  aciertos_segunda = ftirar.(jugadoras[mejor_ronda], 100)
-  mejor_ronda_2 = findmax(aciertos_segunda)
-  #println(aciertos_torneo, "\t", aciertos_segunda)
-  if mejor_ronda_1[2] == 1
-    global primera_ganadora += 1
-  end
-  if mejor_ronda_2[1] >= 80
-    global primera_ganadora_2 += 1
-  end
-end
-
-print(primera_ganadora)
-print(primera_ganadora_2)
-
-
-
-############################# Cazatalentos 7 V2 ##########################
-using Random
-
-
-Random.seed!(207001)
-
-# calcula cuantos encestes logra una jugadora con indice de enceste prob
-# que hace qyt tiros libres
-
-function ftirar(prob, qty)
-  return sum(rand() < prob for i in 1:qty)
-end
+cantidad_adol = 100
 
 #defino las jugadoras de la segunda ronda
-jugadoras_ronda2 = [0.80, 0.79, 0.78, 0.77, 0.72]
-jugadoras_ronda2
+jugadoras = [0.80, 0.79, 0.78, 0.77, 0.72]
 
 global primera_ganadora = 0
 
 # Iterar sobre las simulaciones
 for i = 1:10000
-    vaciertos = ftirar.(jugadoras_ronda2, 100)
+    vaciertos = ftirar.(jugadoras, 100)
     mejor_ronda_1 = findmax(vaciertos)
-    #aciertos_segunda = ftirar.(jugadoras_ronda2[mejor_ronda], 100) #Se estan ingresando indices del vector por fuera de los 5 definidos
     if mejor_ronda_1[2] == 1
         global primera_ganadora += 1
     end
 end
 
-println(primera_ganadora)
+desvio = sqrt(jugadoras[1]*(1-jugadoras[1])/100)
 
-
-for tiros_libres in [ 10, 20, 50, 100]
-
-  primera_ganadora = 0
-
-  for  i in  1:10000
-    vaciertos = ftirar.(jugadoras_ronda2, tiros_libres)
-    mejor_ronda = findmax( vaciertos )[2]
-
-    if mejor_ronda == 1   primera_ganadora += 1  end
-  end
-
-  println( tiros_libres,  "\t", primera_ganadora/10000 )
-end
-
-
+print("Probabilidad de ser la primera de su grupo: ",primera_ganadora/10000)
+print("Estandarizada a 100 jugadoras: ",round(primera_ganadora*sqrt(cantidad_adol/100)/10000, digits = 4))
+print("Probilidad de enceste de la jugadora elegida (CI): ", mejor[1]-1.96*desvio)
+print("Desvio std: ", desvio)
 
 ################### Cazatalentos 8 #####################
 # Adolescentes: 100
 # Tiros: 100
-"""
-Aca pensaria: cual es la probabilidad de que haga 85 encestes dado que la semana pasada hizo 79.
-"""
 
-using Random
-Random.seed!(270001)
-# calcula cuantos encestes logra una jugadora con indice de enceste prob
-# haciendo qyt tiros libres
-
-
-function ftirar(prob, qty)
-  return sum(rand() < prob for i in 1:qty)
-end
-
-
+cantidad_adol = 100
 # defino las jugadoras
 
 peloton_1 = []
@@ -633,7 +309,6 @@ jugadoras
 
 global primera_ganadora = 0
 
-
 for i = 1:10000  # diez mil experimentos
   vaciertos = ftirar.(jugadoras, 100)  # 100 tiros libres de cada jugadora
   mejor_ronda = findmax(vaciertos)
@@ -642,99 +317,21 @@ for i = 1:10000  # diez mil experimentos
   end
 end
 
-print(primera_ganadora)
+prob_enceste_con_hist = (85+790)/1100
 
+desvio = sqrt(prob_enceste_con_hist*(1-prob_enceste_con_hist)/1100)
 
-for tiros_libres in [ 10, 20, 50, 100]
-
-  primera_ganadora = 0
-
-  for  i in  1:10000
-    vaciertos = ftirar.(jugadoras, tiros_libres)
-    mejor_ronda = findmax( vaciertos )[2]
-
-    if mejor_ronda == 1   primera_ganadora += 1  end
-  end
-
-  println( tiros_libres,  "\t", primera_ganadora/10000 )
-end
-
+print("Probabilidad de ser la primera de su grupo: ",primera_ganadora/10000)
+print("Estandarizada a 100 jugadoras: ",round(primera_ganadora*sqrt(cantidad_adol/100)/10000, digits = 4))
+print("Probilidad de enceste de la jugadora elegida (CI): ", prob_enceste_con_hist-1.96*desvio)
+print("Desvio std: ", desvio)
 
 ################### Cazatalentos 9 #####################
 # Adolescentes: 1
 # Tiros: 100
 # Rondas: 10
-#Lo pienso como un vector de 10 jugadoras (en primera instancia)
 
-"""
-Cito el texto: esta deshonestidad de la Cazatalentos 9 no debería parecerle extraña, es exactamente lo mismo
-que elegir cómo submit final el que le fue mejor en el Public Leaderboard, algo muy común entre
-los alumnos ...
-"""
-
-using Random
-Random.seed!(270001)
-
-# calcula cuantos encestes logra una jugadora con indice de enceste prob
-# haciendo qyt tiros libres
-
-
-function ftirar(prob, qty)
-  return sum(rand() < prob for i in 1:qty)
-end
-
-
-# defino el vector de las 10 tiradas de la jugadora
-jugadora = [0.68,0.74,0.78,0.70,0.68,0.63,0.80,0.68,0.67,0.65]
-jugadora = sort(jugadora, rev=true)
-
-
-# veo que tiene el vector
-jugadora
-
-
-global primera_ganadora = 0
-
-
-for i = 1:10000  # diez mil experimentos
-  vaciertos = ftirar.(jugadora, 100)  # 100 tiros libres de la jugadora en cada ronda
-  mejor_ronda = findmax(vaciertos)
-
-  if mejor_ronda[2] == 1
-    global primera_ganadora += 1
-  end
-end
-
-print(primera_ganadora)
-
-
-
-################### Cazatalentos 9 #####################
-# Adolescentes: 1
-# Tiros: 100
-# Rondas: 10
-#Lo pienso como un vector de 10 jugadoras (en primera instancia)
-
-
-
-
-"""
-Cito el texto: esta deshonestidad de la Cazatalentos 9 no debería parecerle extraña, es exactamente lo mismo
-que elegir cómo submit final el que le fue mejor en el Public Leaderboard, algo muy común entre
-los alumnos ...
-"""
-
-using Statistics
-
-using Random
-Random.seed!(270001)
-
-# calcula cuantos encestes logra una jugadora con indice de enceste prob
-# haciendo qyt tiros libres
-
-function ftirar(prob, qty)
-  return sum(rand() < prob for i in 1:qty)
-end
+cantidad_adol = 1
 
 # defino el vector de las 10 tiradas de la jugadora
 jugadora = [0.68,0.74,0.78,0.70,0.68,0.63,0.80,0.68,0.67,0.65]
@@ -742,11 +339,6 @@ jugadora = [0.68,0.74,0.78,0.70,0.68,0.63,0.80,0.68,0.67,0.65]
 jugadora_2 = mean(jugadora)
 
 sort(jugadora, rev=true)
-
-# veo que tiene el vector
-jugadora
-
-ftirar.(jugadora_2, 100)
 
 global primera_ganadora = 0
 global suma_aciertos = 0
@@ -760,64 +352,11 @@ global suma_aciertos += vaciertos
 end
 
 println("Número de rondas con 80 o más aciertos:", primera_ganadora)
-
 println("Probabilidad de enceste:", suma_aciertos/(10000*100))
 
+desvio = sqrt(jugadora_2[1]*(1-jugadora_2[1])/100)
 
-for tiros_libres in [ 10, 20, 50, 100]
-
-  primera_ganadora = 0
-
-  for  i in  1:10000
-    vaciertos = ftirar.(jugadoras, tiros_libres)
-    mejor_ronda = findmax( vaciertos )[2]
-
-    if mejor_ronda == 1   primera_ganadora += 1  end
-  end
-
-  println( tiros_libres,  "\t", primera_ganadora/10000 )
-end
-
-
-
-#########################################################################
-
-
-# intencionalmente la mejor jugadora va al final de la lista de jugadoras
-# porque la funcion findmax() de Julia hace trampa
-# si hay un empate ( dos máximos) se queda con el que esta primero en el vector
-using Random
-
-Random.seed!(102191)
-
-function ftirar(prob, qty)
-  return  sum( rand() < prob for i in 1:qty )
-end
-
-
-# defino las jugadoras
-mejor   = [0.7]
-peloton = Vector((501:599) / 1000)
-jugadoras = append!(peloton, mejor) # intencionalmente el mejor esta al final
-
-
-function  explorar()
-
-  for tiros_libres in [100]
-
-    primera_ganadora = 0
-
-    for  i in  1:10000
-      vaciertos = ftirar.(jugadoras, tiros_libres)
-      mejor_ronda = findmax( vaciertos )[2]
-
-      if mejor_ronda == 100   primera_ganadora += 1  end
-    end
-
-    println( tiros_libres,  "\t", primera_ganadora/10000 )
-  end
-end
-
-
-@time  explorar()
-
+print("Probabilidad de ser la primera de su grupo: ",primera_ganadora/10000)
+print("Estandarizada a 100 jugadoras: ",round(primera_ganadora*sqrt(cantidad_adol/100)/10000, digits = 4))
+print("Probilidad de enceste de la jugadora elegida (CI): ", jugadora_2[1]-1.96*desvio)
+print("Desvio std: ", desvio)
