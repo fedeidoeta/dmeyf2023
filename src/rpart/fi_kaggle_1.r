@@ -36,7 +36,7 @@ modelo <- rpart(
     model = TRUE,
     xval = 0,
     cp = -1,
-    minsplit = 821, # dejo que crezca y corte todo lo que quiera
+    minsplit = 820, # dejo que crezca y corte todo lo que quiera
     minbucket = 376,
     maxdepth = 10,
     weight = pesos
@@ -52,14 +52,14 @@ tablita <- copy( dapply[, list(numero_de_cliente) ] )
 tablita[ , prob := prob_baja ]
 setorder( tablita, -prob )
 
-PARAM$corte <- 9525
+PARAM$corte <- 9612
 
 # grabo el submit a Kaggle
 tablita[ , Predicted := 0L ]
 tablita[ 1:PARAM$corte, Predicted := 1L ]
 
-fwrite(tablita[ , list(numero_de_cliente, Predicted)], paste0("kaggle_01.csv"), sep = ",")
+fwrite(tablita[ , list(numero_de_cliente, Predicted)], paste0("kaggle_02.csv"), sep = ",")
 
-pdf(file = "./modelo_kaggle_1.pdf", width=28, height=4)
+pdf(file = "./modelo_kaggle_2.pdf", width=28, height=4)
 prp(modelo, extra=101, digits=5, branch=1, type=4, varlen=0, faclen=0)
 dev.off()
