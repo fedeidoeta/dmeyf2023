@@ -1,3 +1,7 @@
+#Equipo: 
+#- Veronica Lombardo
+#- Federico Idoeta
+
 using Random
 using Statistics
 Random.seed!(270001)
