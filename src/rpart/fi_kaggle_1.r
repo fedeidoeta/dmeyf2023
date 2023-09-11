@@ -20,31 +20,6 @@ setwd("./exp/KG0001")
 # seteo semilla
 set.seed(270001) #270001, 270029, 270031, 270037, 270059, 270071
 
-####################### Test canarios ###################
-# agrego canaritos randomizados
-dataset2 <- copy(dataset)
-# quito algunas variables de dataset2
-dataset2[ , numero_de_cliente := NULL ]
-dataset2[ , clase_ternaria := NULL ]
-dataset2[ , foto_mes := NULL ]
-
-# agrego azar
-dataset2[ , azar := runif( nrow(dataset2) ) ]
-# randomizo, manteniendo las relaciones entre las variables
-setorder( dataset2, azar )
-dataset2[ , azar := NULL ]  # borra azar
-
-columnas <- copy(colnames(dataset2))
-
-# creo efectivamente los canaritos
-#  1/5  de las variables del dataset
-for( i in sample( 1:ncol(dataset2) , round( ncol(dataset)/5 ) )  )
-{
-  dataset[, paste0("canarito", i) :=  dataset2[ , get(columnas[i]) ]  ]
-}
-##################################################
-
-
 # defino la clase_binaria2
 dataset[ , clase_binaria := ifelse( clase_ternaria=="CONTINUA", "NEG", "POS" ) ]
 
@@ -55,7 +30,11 @@ dapply[ , clase_ternaria := NA ]
 # Seteo pesos para oversampling
 pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ])
 
-#Modelo con optimizacion Bayesiana de hiperparametros de rpart (hiperparametros finales)
+#Modelo hiperparametros finales
+#La optimizacion Bayesiana de hiperparametros utilizada en rpart
+#se encuentra en el archivo fi399_BO_Public_oversampling.r
+#https://github.com/fedeidoeta/dmeyf2023/blob/main/src/rpart/fi399_BO_Public_oversampling.r
+
 modelo <- rpart(
     formula = "clase_binaria ~ . - clase_ternaria",
     data = dtrain,
@@ -64,7 +43,7 @@ modelo <- rpart(
     cp = -1,
     minsplit = 820,
     minbucket = 380,
-    maxdepth = 11,
+    maxdepth = 9,
     weight = pesos
 )
 # Prediccion al dataset 202105
@@ -85,9 +64,9 @@ tablita[ , Predicted := 0L ]
 tablita[ 1:PARAM$corte, Predicted := 1L ]
 
 #Se guarda archivo para enviar a kaggle
-fwrite(tablita[ , list(numero_de_cliente, Predicted)], paste0("kaggle_07.csv"), sep = ",")
+fwrite(tablita[ , list(numero_de_cliente, Predicted)], paste0("kaggle_05.csv"), sep = ",")
 
 #Se guarda imagen del arbol resultante 
-pdf(file = "./modelo_kaggle_7.pdf", width=28, height=4)
+pdf(file = "./modelo_kaggle_5.pdf", width=28, height=4)
 prp(modelo, extra=101, digits=5, branch=1, type=4, varlen=0, faclen=0)
 dev.off()
