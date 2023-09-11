@@ -1,3 +1,4 @@
+# Script para lograr una ganancia del 70.8161 en kaggle. 
 # limpio la memoria
 rm(list = ls()) # remove all objects
 gc() # garbage collection
@@ -43,7 +44,7 @@ modelo <- rpart(
     cp = -1,
     minsplit = 820,
     minbucket = 380,
-    maxdepth = 9,
+    maxdepth = 9, # parsimonia
     weight = pesos
 )
 # Prediccion al dataset 202105
