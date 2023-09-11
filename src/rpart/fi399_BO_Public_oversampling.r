@@ -1,9 +1,6 @@
+############### Impossible is Nothing ###################
 # Optimizacion Bayesiana de hiperparametros de  rpart
 # que va directamente contra el Public Leaderboard
-# este script AUN no entrena en un dataset con oversampling de los BAJA+2
-
-# dedicado a Federico Idoeta, Impossible is Nothing,  02-sep-2022
-
 
 # limpio la memoria
 rm(list = ls()) # remove all objects
@@ -25,7 +22,7 @@ PARAM <- list()
 PARAM$experimento <- "HT3993"
 
 # cantidad de iteraciones de la Optimizacion Bayesiana
-PARAM$BO_iter <- 34 # iteraciones inteligentes   24= 40 - 4*4
+PARAM$BO_iter <- 34 # iteraciones inteligentes
 
 #  de los hiperparametros
 PARAM$hs <- makeParamSet(
@@ -37,7 +34,7 @@ PARAM$hs <- makeParamSet(
 )
 # minbuket NO PUEDE ser mayor que la mitad de minsplit
 
-PARAM$semilla_azar <- 270001 # primer semilla de Federico
+PARAM$semilla_azar <- 270001 # primer semilla
 
 #------------------------------------------------------------------------------
 
@@ -268,21 +265,3 @@ if (!file.exists(archivo_BO)) {
 # retomo en caso que ya exista
 
 ###########################################################
-
-
-
-file <- "C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas/exp/HT3990/BO_log.txt"
-df_log <- read.table(file,                 # Archivo de datos TXT indicado como string o ruta completa al archivo
-           header = TRUE,       # Si se muestra el encabezado (TRUE) o no (FALSE)
-           sep = "",             # Separador de las columnas del archivo
-           dec = ".",
-           row.names = NULL,
-           col.names = c('fecha', 'hora', 'minsplit', 'minbucket', 'maxdepth', 'corte', 'cp', 'ganancia', 'iteracion'))            # Caracter utilizado para separar decimales de los números en el archivo
-logs <- data.frame(df_log)
-
-summary(logs)
-
-
-
-# weight en rpart: se puede pasar los pesos de las clases se multiplica *100 a los positivos  (BAJA +2 y BAJA+1)
-# hacer una arbol chico y ver las variables por las que elige, con eso binarizar
