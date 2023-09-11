@@ -20,7 +20,7 @@ setwd("./exp/KG0001")
 # seteo semilla
 set.seed(270001) #270001, 270029, 270031, 270037, 270059, 270071
 
-"####################### Test canarios ###################
+####################### Test canarios ###################
 # agrego canaritos randomizados
 dataset2 <- copy(dataset)
 # quito algunas variables de dataset2
@@ -43,7 +43,7 @@ for( i in sample( 1:ncol(dataset2) , round( ncol(dataset)/5 ) )  )
   dataset[, paste0("canarito", i) :=  dataset2[ , get(columnas[i]) ]  ]
 }
 ##################################################
-"
+
 
 # defino la clase_binaria2
 dataset[ , clase_binaria := ifelse( clase_ternaria=="CONTINUA", "NEG", "POS" ) ]
@@ -64,7 +64,7 @@ modelo <- rpart(
     cp = -1,
     minsplit = 820,
     minbucket = 380,
-    maxdepth = 9,
+    maxdepth = 11,
     weight = pesos
 )
 # Prediccion al dataset 202105
@@ -85,9 +85,9 @@ tablita[ , Predicted := 0L ]
 tablita[ 1:PARAM$corte, Predicted := 1L ]
 
 #Se guarda archivo para enviar a kaggle
-fwrite(tablita[ , list(numero_de_cliente, Predicted)], paste0("kaggle_05.csv"), sep = ",")
+fwrite(tablita[ , list(numero_de_cliente, Predicted)], paste0("kaggle_07.csv"), sep = ",")
 
 #Se guarda imagen del arbol resultante 
-pdf(file = "./modelo_kaggle_5.pdf", width=28, height=4)
+pdf(file = "./modelo_kaggle_7.pdf", width=28, height=4)
 prp(modelo, extra=101, digits=5, branch=1, type=4, varlen=0, faclen=0)
 dev.off()
