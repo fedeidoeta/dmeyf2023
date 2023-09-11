@@ -1,4 +1,4 @@
-# Script para lograr una ganancia del 70.8161 en kaggle. 
+# Script para lograr una ganancia en el Public Leaderboard de 70.8161 en Kaggle. 
 # limpio la memoria
 rm(list = ls()) # remove all objects
 gc() # garbage collection
