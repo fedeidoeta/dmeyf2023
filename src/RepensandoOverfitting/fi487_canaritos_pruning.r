@@ -6,16 +6,17 @@ require("data.table")
 require("rpart")
 require("rpart.plot")
 
-setwd("C:/Users/fidoeta/Documents/VS Code/Maestria") # establezco la carpeta donde voy a trabajar
+#setwd("C:/Users/fidoeta/Documents/VS Code/Maestria") # establezco la carpeta donde voy a trabajar
 
+setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas")
 PARAM <- list()
 
 # cargo el dataset
 dataset <- fread("./datasets/competencia_01.csv")
 
 dir.create("./exp/", showWarnings = FALSE)
-dir.create("./exp/EA4871/", showWarnings = FALSE)
-setwd("./exp/EA4871")
+dir.create("./exp/EA4873/", showWarnings = FALSE)
+setwd("./exp/EA4873")
 
 # uso esta semilla para los canaritos
 set.seed(270001)
@@ -69,7 +70,9 @@ modelo_original <- rpart(
     maxdepth = 30,
     weight = pesos
 )
-head(modelo_original$frame, 10)
+
+#head(modelo_original$call, 10)
+#head(modelo_original$frame, 10)
 
 # hago el pruning de los canaritos
 # haciendo un hackeo a la estructura  modelo_original$frame
@@ -80,6 +83,8 @@ modelo_original$frame[
 ] <- -666
 
 modelo_pruned <- prune(modelo_original, -666)
+
+head(modelo_pruned$frame$var, 10)
 
 prediccion <- predict(modelo_pruned, dapply, type = "prob")
 
