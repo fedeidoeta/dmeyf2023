@@ -1,9 +1,6 @@
+############### Impossible is Nothing ###################
 # Optimizacion Bayesiana de hiperparametros de  rpart
 # que va directamente contra el Public Leaderboard
-# este script AUN no entrena en un dataset con oversampling de los BAJA+2
-
-# dedicado a Federico Idoeta, Impossible is Nothing,  02-sep-2022
-
 
 # limpio la memoria
 rm(list = ls()) # remove all objects
@@ -22,26 +19,22 @@ require("mlrMBO")
 
 # Defino la  Optimizacion Bayesiana
 PARAM <- list()
-PARAM$experimento <- "HT3992"
+PARAM$experimento <- "HT3993"
 
 # cantidad de iteraciones de la Optimizacion Bayesiana
-<<<<<<< HEAD
-PARAM$BO_iter <- 100 # iteraciones inteligentes   24= 40 - 4*4
-=======
-PARAM$BO_iter <- 24 # iteraciones inteligentes   24= 40 - 4*4
->>>>>>> 9b659d0efe410508c51bdea769c2e405028fa8e7
+PARAM$BO_iter <- 34 # iteraciones inteligentes
 
 #  de los hiperparametros
 PARAM$hs <- makeParamSet(
-  makeIntegerParam("minsplit", lower = 500L, upper = 1500L),
-  makeIntegerParam("minbucket", lower = 200L, upper = 800L),
-  makeIntegerParam("maxdepth", lower = 6L, upper = 12L),
-  #makeIntegerParam("corte", lower = 8000L, upper = 10000L),
+  makeIntegerParam("minsplit", lower = 650L, upper = 1000L), #antes lower = 500L, upper = 1500L
+  makeIntegerParam("minbucket", lower = 200L, upper = 400L),# antes lower = 200L, upper = 800L
+  makeIntegerParam("maxdepth", lower = 9L, upper = 10L), # paso lower 6 --> 9, upper: 12--> 10
+  makeIntegerParam("corte", lower = 9000L, upper = 10000L), # lower: 8000-->9000
   forbidden = quote(minbucket > 0.5 * minsplit)
 )
 # minbuket NO PUEDE ser mayor que la mitad de minsplit
 
-PARAM$semilla_azar <- 270001 # primer semilla de Federico
+PARAM$semilla_azar <- 270001 # primer semilla
 
 #------------------------------------------------------------------------------
 
@@ -109,13 +102,13 @@ ArbolSimple <- function( data, param, iteracion) {
   param2$cp <- -1
   param2$minsplit <- param$minsplit 
   param2$minbucket <- param$minbucket
-  param2$corte <- 9500 #param$corte
-  weights = pesos
+  param2$corte <- param$corte
 
   modelo <- rpart("clase_binaria ~ . - clase_ternaria",
     data = dtrain,
     xval = 0,
-    control = param2
+    control = param2,
+    weights = pesos
   )
 
   # aplico el modelo a los datos de testing
@@ -137,7 +130,7 @@ ArbolSimple <- function( data, param, iteracion) {
   tablita[ , Predicted := 0L ]
   tablita[ 1:param2$corte, Predicted := 1L ]
 
-  nom_submit <- paste0("z399_", sprintf( "%03d", iteracion ), ".csv" )
+  nom_submit <- paste0("z3992_Ov", sprintf( "%03d", iteracion ), ".csv" )
   fwrite( tablita[ , list(numero_de_cliente, Predicted)],
           file= nom_submit,
           sep= "," )
@@ -192,11 +185,7 @@ dapply[ , clase_ternaria := NA ]
 
 
 # definicion vector de pesos para oversampling
-<<<<<<< HEAD
-pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ])
-=======
 pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ] )
->>>>>>> 9b659d0efe410508c51bdea769c2e405028fa8e7
 
 
 unique(dtrain$clase_ternaria)
@@ -227,8 +216,6 @@ if (file.exists(archivo_log)) {
   tabla_log <- fread(archivo_log)
   GLOBAL_iteracion <- nrow(tabla_log)
 }
-
-
 
 # Aqui comienza la configuracion de la Bayesian Optimization
 
@@ -278,21 +265,3 @@ if (!file.exists(archivo_BO)) {
 # retomo en caso que ya exista
 
 ###########################################################
-
-
-
-file <- "C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas/exp/HT3990/BO_log.txt"
-df_log <- read.table(file,                 # Archivo de datos TXT indicado como string o ruta completa al archivo
-           header = TRUE,       # Si se muestra el encabezado (TRUE) o no (FALSE)
-           sep = "",             # Separador de las columnas del archivo
-           dec = ".",
-           row.names = NULL,
-           col.names = c('fecha', 'hora', 'minsplit', 'minbucket', 'maxdepth', 'corte', 'cp', 'ganancia', 'iteracion'))            # Caracter utilizado para separar decimales de los números en el archivo
-logs <- data.frame(df_log)
-
-summary(logs)
-
-
-
-# weight en rpart: se puede pasar los pesos de las clases se multiplica *100 a los positivos  (BAJA +2 y BAJA+1)
-# hacer una arbol chico y ver las variables por las que elige, con eso binarizar

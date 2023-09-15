@@ -6,16 +6,27 @@ require("data.table")
 require("rpart")
 require("rpart.plot")
 
+<<<<<<< HEAD
 setwd("C:/Users/fidoeta/Documents/VS Code/Maestria") # establezco la carpeta donde voy a trabajar
 
+=======
+#setwd("C:/Users/fidoeta/Documents/VS Code/Maestria") # establezco la carpeta donde voy a trabajar
+
+setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas")
+>>>>>>> 9b659d0efe410508c51bdea769c2e405028fa8e7
 PARAM <- list()
 
 # cargo el dataset
 dataset <- fread("./datasets/competencia_01.csv")
 
 dir.create("./exp/", showWarnings = FALSE)
+<<<<<<< HEAD
 dir.create("./exp/EA4871/", showWarnings = FALSE)
 setwd("./exp/EA4871")
+=======
+dir.create("./exp/EA4873/", showWarnings = FALSE)
+setwd("./exp/EA4873")
+>>>>>>> 9b659d0efe410508c51bdea769c2e405028fa8e7
 
 # uso esta semilla para los canaritos
 set.seed(270001)
@@ -69,7 +80,13 @@ modelo_original <- rpart(
     maxdepth = 30,
     weight = pesos
 )
+<<<<<<< HEAD
 head(modelo_original$frame, 100)
+=======
+
+#head(modelo_original$call, 10)
+#head(modelo_original$frame, 10)
+>>>>>>> 9b659d0efe410508c51bdea769c2e405028fa8e7
 
 # hago el pruning de los canaritos
 # haciendo un hackeo a la estructura  modelo_original$frame
@@ -81,6 +98,11 @@ modelo_original$frame[
 
 modelo_pruned <- prune(modelo_original, -666)
 
+<<<<<<< HEAD
+=======
+head(modelo_pruned$frame$var, 10)
+
+>>>>>>> 9b659d0efe410508c51bdea769c2e405028fa8e7
 prediccion <- predict(modelo_pruned, dapply, type = "prob")
 
 # esta es la probabilidad de baja
@@ -100,4 +122,8 @@ fwrite(tablita[ , list(numero_de_cliente, Predicted)], paste0("canaritos_9500_pe
 
 pdf(file = "./modelo_pruned_pesos.pdf", width=28, height=4)
 prp(modelo_pruned, extra=101, digits=5, branch=1, type=4, varlen=0, faclen=0)
+<<<<<<< HEAD
 dev.off()
+=======
+dev.off()
+>>>>>>> 9b659d0efe410508c51bdea769c2e405028fa8e7
