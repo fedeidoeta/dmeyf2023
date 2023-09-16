@@ -25,7 +25,11 @@ PARAM <- list()
 PARAM$experimento <- "HT3992"
 
 # cantidad de iteraciones de la Optimizacion Bayesiana
+<<<<<<< HEAD
+PARAM$BO_iter <- 100 # iteraciones inteligentes   24= 40 - 4*4
+=======
 PARAM$BO_iter <- 24 # iteraciones inteligentes   24= 40 - 4*4
+>>>>>>> 9b659d0efe410508c51bdea769c2e405028fa8e7
 
 #  de los hiperparametros
 PARAM$hs <- makeParamSet(
@@ -188,7 +192,11 @@ dapply[ , clase_ternaria := NA ]
 
 
 # definicion vector de pesos para oversampling
+<<<<<<< HEAD
+pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ])
+=======
 pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ] )
+>>>>>>> 9b659d0efe410508c51bdea769c2e405028fa8e7
 
 
 unique(dtrain$clase_ternaria)
