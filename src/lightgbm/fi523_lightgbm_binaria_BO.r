@@ -29,8 +29,6 @@ options(error = function() {
   stop("exiting after script error")
 })
 
-
-
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
@@ -43,7 +41,7 @@ PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 PARAM$input$training <- c(202101, 202102, 202103, 202104, 202105)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$undersampling <- 1.0
+PARAM$trainingstrategy$undersampling <- 0.1
 PARAM$trainingstrategy$semilla_azar <- 270001 # Aqui poner su  primer  semilla
 
 # Semillas Fede: 270001, 270029, 270031, 270037, 270059, 270071
