@@ -59,6 +59,11 @@ for (i in periods){
     dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = all_columns,  by =numero_de_cliente]
 }
 
+#_______________________________________________
+#Coloco NA a todos los registos en 0
+
+dataset[, (all_columns) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDcols = all_columns]
+
 #--------------------------------------
 
 # paso la clase a binaria que tome valores {0,1}  enteros
@@ -153,7 +158,7 @@ setorder(tb_entrega, -prob)
 # suba TODOS los archivos a Kaggle
 # espera a la siguiente clase sincronica en donde el tema sera explicado
 
-cortes <- seq(8000, 13000, by = 500)
+cortes <- seq(8000, 15000, by = 500)
 for (envios in cortes) {
   tb_entrega[, Predicted := 0L]
   tb_entrega[1:envios, Predicted := 1L]
