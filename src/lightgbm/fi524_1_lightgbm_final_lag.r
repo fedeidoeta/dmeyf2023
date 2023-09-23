@@ -2,6 +2,13 @@
 #   8 vCPU
 #  16 GB memoria RAM
 
+# fi524_1_1: 
+# - Entreno al modelo con datos del 201010 en adelante.
+# - Agrego lag de 12 meses de cada feature
+# - Reemplazo 0 por NA
+# - Rankeo a cada cliente respecto de cada mes en cada feature
+# - Utilizo hyper de HT5240
+
 
 # limpio la memoria
 rm(list = ls()) # remove all objects
@@ -43,7 +50,7 @@ dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
 #____________________________________________________
 
-#FI: hago lag de los ultimos 12 meses de todas las features (menos numero cliente, foto mes y clase ternaria)
+# FI: hago lag de los ultimos 12 meses de todas las features (menos numero cliente, foto mes y clase ternaria)
 
 all_columns <- setdiff(
   colnames(dataset),
@@ -60,13 +67,13 @@ for (i in periods){
 }
 
 #_______________________________________________
-#Coloco NA a todos los registos en 0
+# FI: Coloco NA a todos los registos en 0
 
 dataset[, (all_columns) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDcols = all_columns]
 
 
 #________________________________________________
-# Ranking de cada cliente de cada mes en todas las features
+# FI: Ranking de cada cliente de cada mes en todas las features
 
 all_columns <- setdiff(
   colnames(dataset),
