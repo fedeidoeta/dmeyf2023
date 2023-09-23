@@ -63,13 +63,15 @@ columns <- c("ctrx_quarter",
 "ccomisiones_otras",
 "mcaja_ahorro_dolares")
 
+all_columns <- colnames(dataset[1, -c("numero_de_cliente", "foto_mes", "clase_ternaria")])
+
 setorder(dataset, numero_de_cliente, foto_mes)
 
-periods <- seq(1, 5) # Seleccionar cantidad de periodos 
+periods <- seq(1, 3) # Seleccionar cantidad de periodos 
 
 for (i in periods){
-    lagcolumns <- paste("lag", columns,i, sep=".")
-    dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = columns,  by =numero_de_cliente]
+    lagcolumns <- paste("lag", all_columns,i, sep=".")
+    dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = all_columns,  by =numero_de_cliente]
 }
-# Check de los rimeros 3 meses
-head(dataset[, c("numero_de_cliente", "ctrx_quarter", "lag.ctrx_quarter.1", "lag.ctrx_quarter.2")], 100)
+# Check de los primeros 3 meses
+head(dataset[, c("numero_de_cliente", "ctrx_quarter", "lag.ctrx_quarter.1", "lag.mautoservicio.2")], 100)
