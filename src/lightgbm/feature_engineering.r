@@ -63,8 +63,11 @@ columns <- c("ctrx_quarter",
 "ccomisiones_otras",
 "mcaja_ahorro_dolares")
 
-all_columns <- colnames(dataset[1, -c("numero_de_cliente", "foto_mes", "clase_ternaria")])
-
+all_columns <- setdiff(
+  colnames(dataset),
+  c("numero_de_cliente", "foto_mes", "clase_ternaria")
+)
+unique(dataset$foto_mes)
 setorder(dataset, numero_de_cliente, foto_mes)
 
 periods <- seq(1, 3) # Seleccionar cantidad de periodos 
