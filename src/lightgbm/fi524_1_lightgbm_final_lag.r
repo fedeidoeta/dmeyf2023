@@ -64,6 +64,20 @@ for (i in periods){
 
 dataset[, (all_columns) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDcols = all_columns]
 
+
+#________________________________________________
+# Ranking de cada cliente de cada mes en todas las features
+
+all_columns <- setdiff(
+  colnames(dataset),
+  c("numero_de_cliente", "foto_mes", "clase_ternaria")
+)
+
+for (col in all_columns){
+    rankcolumns <- paste("rank", col, sep=".")
+    dataset[, (rankcolumns):= frank(-.SD[[col]], ties.method= "dense"), by = foto_mes]
+}
+
 #--------------------------------------
 
 # paso la clase a binaria que tome valores {0,1}  enteros
