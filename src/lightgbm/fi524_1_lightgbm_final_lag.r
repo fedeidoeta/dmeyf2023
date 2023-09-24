@@ -2,9 +2,9 @@
 #   8 vCPU
 #  16 GB memoria RAM
 
-# fi524_1_1: 
-# - Entreno al modelo con datos del 201010 en adelante.
-# - Agrego lag de 12 meses de cada feature
+# fi524_1_2: 
+# - Entreno al modelo con datos del 201907 en adelante.
+# - Agrego lag de 6 meses de cada feature
 # - Reemplazo 0 por NA
 # - Rankeo a cada cliente respecto de cada mes en cada feature
 # - Utilizo hyper de HT5240
@@ -21,12 +21,13 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA5240_1_1"
+PARAM$experimento <- "KA5240_1_2"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
 # meses donde se entrena el modelo
-PARAM$input$training <- c(202010, 202011, 202012, 202101, 202102, 202103, 202104, 202105)
+PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 
+  202011, 202012, 202101, 202102, 202103, 202104, 202105)
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
 PARAM$finalmodel$semilla <- 270029
@@ -59,7 +60,7 @@ all_columns <- setdiff(
 
 setorder(dataset, numero_de_cliente, foto_mes)
 
-periods <- seq(1, 12) # Seleccionar cantidad de periodos 
+periods <- seq(1, 6) # Seleccionar cantidad de periodos 
 
 for (i in periods){
     lagcolumns <- paste("lag", all_columns,i, sep=".")
