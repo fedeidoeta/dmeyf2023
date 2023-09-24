@@ -51,7 +51,7 @@ dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
 #____________________________________________________
 
-# FI: hago lag de los ultimos 12 meses de todas las features (menos numero cliente, foto mes y clase ternaria)
+# FI: hago lag de los ultimos 6 meses de todas las features (menos numero cliente, foto mes y clase ternaria)
 
 all_columns <- setdiff(
   colnames(dataset),
@@ -75,11 +75,6 @@ dataset[, (all_columns) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDco
 
 #________________________________________________
 # FI: Ranking de cada cliente de cada mes en todas las features
-
-all_columns <- setdiff(
-  colnames(dataset),
-  c("numero_de_cliente", "foto_mes", "clase_ternaria")
-)
 
 for (col in all_columns){
     rankcolumns <- paste("rank", col, sep=".")
