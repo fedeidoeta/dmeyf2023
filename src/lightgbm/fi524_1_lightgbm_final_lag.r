@@ -6,7 +6,7 @@
 # - Entreno al modelo con datos del 201907 en adelante.
 # - Agrego lag de 6 meses de cada feature
 # - Reemplazo 0 por NA
-# - Rankeo a cada cliente respecto de cada mes en cada feature
+# - Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
 # - Utilizo hyper de HT5240
 
 
@@ -76,9 +76,12 @@ dataset[, (all_columns) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDco
 #________________________________________________
 # FI: Ranking de cada cliente de cada mes en todas las features
 
-for (col in all_columns){
-    rankcolumns <- paste("rank", col, sep=".")
-    dataset[, (rankcolumns):= frank(-.SD[[col]], ties.method= "dense"), by = foto_mes]
+for (col in columns){
+  rankcolumns <- paste("rank", col, sep=".")
+  dataset[, (rankcolumns) :=
+             ifelse(.SD[[col]] > 0, frank(.SD[[col]], ties.method = "dense"),
+                    -frank(-.SD[[col]], ties.method = "dense")), by = foto_mes]
+
 }
 
 #--------------------------------------
