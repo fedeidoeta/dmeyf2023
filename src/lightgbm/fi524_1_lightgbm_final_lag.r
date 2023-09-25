@@ -2,12 +2,13 @@
 #   8 vCPU
 #  16 GB memoria RAM
 
-# fi524_1_2: 
-# - Entreno al modelo con datos del 201907 en adelante.
+# fi524_1_3: 
+# - Entreno al modelo con datos del (201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 
+#  202011, 202012, 202101, 202102, 202103, 202104, 202105).
 # - Agrego lag de 6 meses de cada feature
 # - Reemplazo 0 por NA
 # - Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
-# - Utilizo hyper de HT5240
+# - Utilizo mejor hyper de HT5240_1
 
 
 # limpio la memoria
@@ -32,11 +33,11 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
 PARAM$finalmodel$semilla <- 270029
 
-PARAM$finalmodel$num_iterations <- 7198
-PARAM$finalmodel$learning_rate <- 0.0104796203951078
-PARAM$finalmodel$feature_fraction <- 0.201186134823386
-PARAM$finalmodel$min_data_in_leaf <- 3
-PARAM$finalmodel$num_leaves <- 634
+PARAM$finalmodel$num_iterations <- 3125 # 7198 ->3125
+PARAM$finalmodel$learning_rate <- 0.0103420582994214 # 0.0104796203951078-> 0.0103420582994214
+PARAM$finalmodel$feature_fraction <- 0.33082894908375 # 0.201186134823386 -> 0.33082894908375
+PARAM$finalmodel$min_data_in_leaf <- 14 # 3 -> 14
+PARAM$finalmodel$num_leaves <- 908 # 634 -> 908
 
 
 PARAM$finalmodel$max_bin <- 31
@@ -74,7 +75,7 @@ dataset[, (all_columns) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDco
 
 
 #________________________________________________
-# FI: Ranking de cada cliente de cada mes en todas las features
+# FI: Ranking de cada cliente de cada mes en todas las features con 0 fijo
 
 for (col in columns){
   rankcolumns <- paste("rank", col, sep=".")
@@ -83,7 +84,6 @@ for (col in columns){
                     -frank(-.SD[[col]], ties.method = "dense")), by = foto_mes]
 
 }
-
 #--------------------------------------
 
 # paso la clase a binaria que tome valores {0,1}  enteros
