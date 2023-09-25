@@ -16,6 +16,7 @@ PARAM$input$training <- c(202101, 202102, 202103, 202104, 202105)
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
 #setwd("~/buckets/b1")
+#setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas")
 
 # cargo el dataset donde voy a entrenar
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
@@ -25,42 +26,42 @@ dataset[1,8:10]
 columns <- c("ctrx_quarter", 
 "mcaja_ahorro",
 "mcuentas_saldo", 
-"cpayroll_trx",
-"mrentabilidad_annual",
-"cliente_edad",
-"Visa_msaldopesos",
-"mprestamos_personales",
-"numero_de_cliente",
-"ctarjeta_visa_transacciones",
-"cliente_antiguedad",
-"Master_fechaalta",
-"mpasivos_margen",
-"Visa_Fvencimiento",
-"mcuenta_corriente",
-"Master_Fvencimiento",
-"Visa_fechaalta",
-"mrentabilidad",
-"mactivos_margen",
-"Master_mfinanciacion_limite",
-"chomebanking_transacciones",
-"mpayroll",
-"Visa_mfinanciacion_limite",
-"mtarjeta_visa_consumo",
-"mcomisiones_otras",
-"mcomisiones",
-"mtransferencias_recibidas",
-"mcomisiones_mantenimiento",
-"Visa_mlimitecompra",
-"Visa_msaldototal",
-"Visa_mpagominimo",
-"ctarjeta_master",
-"Master_mlimitecompra",
-"Visa_mpagospesos",
-"cproductos",
-"Visa_mconsumospesos",
-"mautoservicio",
-"Master_fultimo_cierre",
-"ccomisiones_otras",
+#"cpayroll_trx",
+#"mrentabilidad_annual",
+#"cliente_edad",
+#"Visa_msaldopesos",
+#"mprestamos_personales",
+#"numero_de_cliente",
+#"ctarjeta_visa_transacciones",
+#"cliente_antiguedad",
+#"Master_fechaalta",
+#"mpasivos_margen",
+#"Visa_Fvencimiento",
+#"mcuenta_corriente",
+#"Master_Fvencimiento",
+#"Visa_fechaalta",
+#"mrentabilidad",
+#"mactivos_margen",
+#"Master_mfinanciacion_limite",
+#"chomebanking_transacciones",
+#"mpayroll",
+#"Visa_mfinanciacion_limite",
+#"mtarjeta_visa_consumo",
+#"mcomisiones_otras",
+#"mcomisiones",
+#"mtransferencias_recibidas",
+#"mcomisiones_mantenimiento",
+#"Visa_mlimitecompra",
+#"Visa_msaldototal",
+#"Visa_mpagominimo",
+#"ctarjeta_master",
+#"Master_mlimitecompra",
+#"Visa_mpagospesos",
+#"cproductos",
+#"Visa_mconsumospesos",
+#"mautoservicio",
+#"Master_fultimo_cierre",
+#"ccomisiones_otras",
 "mcaja_ahorro_dolares")
 
 all_columns <- setdiff(
@@ -118,3 +119,19 @@ setorder(dataset, foto_mes, rank.mcuentas_saldo)
 dataset[rank.mcuentas_saldo<=2 & foto_mes==202006, c("numero_de_cliente","foto_mes", "mcuentas_saldo", "rank.mcuentas_saldo")]
 
 all_columns
+
+
+######################################################################################
+# Ranking con 0 vale la pena? Tiene sentido para marcar al arbol donde 
+# es la referencia 0 en cada periodo
+
+for (col in columns){
+  rankcolumns <- paste("rank", col, sep=".")
+  dataset[, (rankcolumns) :=
+             ifelse(.SD[[col]] > 0, frank(.SD[[col]], ties.method = "dense"),
+                    -frank(-.SD[[col]], ties.method = "dense")), by = foto_mes]
+
+}
+
+
+
