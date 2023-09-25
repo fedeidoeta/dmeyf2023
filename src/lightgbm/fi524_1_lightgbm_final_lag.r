@@ -77,7 +77,7 @@ dataset[, (all_columns) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDco
 #________________________________________________
 # FI: Ranking de cada cliente de cada mes en todas las features con 0 fijo
 
-for (col in columns){
+for (col in all_columns){
   rankcolumns <- paste("rank", col, sep=".")
   dataset[, (rankcolumns) :=
              ifelse(.SD[[col]] > 0, frank(.SD[[col]], ties.method = "dense"),
