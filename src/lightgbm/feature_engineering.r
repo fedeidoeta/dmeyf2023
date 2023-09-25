@@ -133,5 +133,9 @@ for (col in columns){
 
 }
 
+#Check
+setorder(dataset, numero_de_cliente, foto_mes)
+dataset[numero_de_cliente==29202973, c("numero_de_cliente","foto_mes", "mcuentas_saldo", "rank.mcuentas_saldo")]
 
+head(dataset)
 
