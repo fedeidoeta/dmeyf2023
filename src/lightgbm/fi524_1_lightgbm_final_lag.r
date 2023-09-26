@@ -9,6 +9,7 @@
 # - Reemplazo 0 por NA
 # - Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
 # - Utilizo mejor hyper de HT5240_1
+# - Sumo el hyper weight 100 a 1
 
 
 # limpio la memoria
@@ -84,6 +85,7 @@ for (col in all_columns){
                     -frank(-.SD[[col]], ties.method = "dense")), by = foto_mes]
 
 }
+
 #--------------------------------------
 
 # paso la clase a binaria que tome valores {0,1}  enteros
@@ -120,6 +122,15 @@ dtrain <- lgb.Dataset(
   label = dataset[train == 1L, clase01]
 )
 
+#__________________________________________________
+# Oversampling de la clase positiva
+
+# definicion vector de pesos para oversampling
+pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ] )
+
+
+#___________________________________________
+
 # genero el modelo
 # estos hiperparametros  salieron de una laaarga Optmizacion Bayesiana
 modelo <- lgb.train(
@@ -133,7 +144,9 @@ modelo <- lgb.train(
     min_data_in_leaf = PARAM$finalmodel$min_data_in_leaf,
     feature_fraction = PARAM$finalmodel$feature_fraction,
     seed = PARAM$finalmodel$semilla
-  )
+  ),
+  weight = pesos
+  #weight_column = pesos
 )
 
 #--------------------------------------
