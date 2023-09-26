@@ -126,8 +126,7 @@ dtrain <- lgb.Dataset(
 # Oversampling de la clase positiva
 
 # definicion vector de pesos para oversampling
-pesos <- copy( dtrain[, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ] )
-
+pesos <- copy( dataset[train == 1L, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ] )
 
 #___________________________________________
 
