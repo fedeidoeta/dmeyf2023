@@ -119,14 +119,15 @@ setwd(paste0("./exp/", PARAM$experimento, "/"))
 # dejo los datos en el formato que necesita LightGBM
 dtrain <- lgb.Dataset(
   data = data.matrix(dataset[train == 1L, campos_buenos, with = FALSE]),
-  label = dataset[train == 1L, clase01]
+  label = dataset[train == 1L, clase01],
+  weight = dataset[train == 1L, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ]
 )
 
 #__________________________________________________
 # Oversampling de la clase positiva
 
 # definicion vector de pesos para oversampling
-pesos <- copy( dataset[train == 1L, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ] )
+#pesos <- copy( dataset[train == 1L, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ] )
 
 #___________________________________________
 
@@ -144,7 +145,7 @@ modelo <- lgb.train(
     feature_fraction = PARAM$finalmodel$feature_fraction,
     seed = PARAM$finalmodel$semilla
   ),
-  weight = pesos
+  #weight = pesos
   #weight_column = pesos
 )
 
