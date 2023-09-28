@@ -8,12 +8,12 @@
 # 5-fold cross validation el cual es muuuy lento
 # la probabilidad de corte es un hiperparametro
 
-## fi523_1_2: 
-# - Entreno al modelo con datos del 201907 en adelante.
+## fi523_2: 
+# - Entreno al modelo con datos del 2019 y 2021 disponibles.
 # - Agrego lag de 6 meses de cada feature
 # - Reemplazo 0 por NA
-# - Rankeo a cada cliente respecto de cada mes en cada feature
-# - Undersampling = 0.1
+# - Rankeo a cada cliente respecto de cada mes en cada feature centrado en 0
+# - Undersampling = 0.01
 
 # limpio la memoria
 rm(list = ls()) # remove all objects
@@ -40,16 +40,16 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "HT5230_1"
+PARAM$experimento <- "HT5230_2"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
  # los meses en los que vamos a entrenar
-PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 
+PARAM$input$training <- c(201901, 201902, 201903, 201904, 201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 
   202011, 202012, 202101, 202102, 202103, 202104, 202105)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$undersampling <- 0.1
+PARAM$trainingstrategy$undersampling <- 0.01
 PARAM$trainingstrategy$semilla_azar <- 270001 # Aqui poner su  primer  semilla
 
 # Semillas Fede: 270001, 270029, 270031, 270037, 270059, 270071
@@ -261,8 +261,11 @@ dataset[, (all_columns) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDco
 # FI: Ranking de cada cliente de cada mes en todas las features
 
 for (col in all_columns){
-    rankcolumns <- paste("rank", col, sep=".")
-    dataset[, (rankcolumns):= frank(-.SD[[col]], ties.method= "dense"), by = foto_mes]
+  rankcolumns <- paste("rank", col, sep=".")
+  dataset[, (rankcolumns) :=
+             ifelse(.SD[[col]] > 0, frank(.SD[[col]], ties.method = "dense"),
+                    -frank(-.SD[[col]], ties.method = "dense")), by = foto_mes]
+
 }
 
 #______________________________________________________
