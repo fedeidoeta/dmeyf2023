@@ -82,7 +82,7 @@ head(dataset[, c("numero_de_cliente", "ctrx_quarter", "lag.ctrx_quarter.1", "lag
 
 
 ##################################################################################################
-# Coloca NA a todos los registros en 0
+# Coloca NA a todos los registros en 0 -- V1 - si hay valores que corresponden realmente a 0, este script los mata
 
 # Antes de los NA
 
@@ -97,6 +97,42 @@ dataset[, (all_columns) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDco
 
 #Despues de NA
 head(dataset,5)
+
+##################################################################################################
+#  Coloca NA en 0 en meses y features selectos -- V2
+zero_ratio <- list(
+  list(mes = 202006, campo = 
+    c("active_quarter", "internet", "mrentabilidad", "mrentabilidad_annual", 
+      "mcomisiones", "mactivos_margen", "mpasivos_margen", "mcuentas_saldo", 
+      "ctarjeta_debito_transacciones","mautoservicio", "ctarjeta_visa_transacciones", 
+      "mtarjeta_visa_consumo","ctarjeta_master_transacciones", "mtarjeta_master_consumo",
+      "ccomisiones_otras", "mcomisiones_otras","cextraccion_autoservicio","mextraccion_autoservicio",
+      "ccheques_depositados","mcheques_depositados","ccheques_emitidos","mcheques_emitidos",
+      "ccheques_depositados_rechazados","mcheques_depositados_rechazados","ccheques_emitidos_rechazados",
+      "mcheques_emitidos_rechazados","tcallcenter","ccallcenter_transacciones","thomebanking",
+      "chomebanking_transacciones","ccajas_transacciones","ccajas_consultas","ccajas_depositos",
+      "ccajas_extracciones","ccajas_otras","catm_trx","matm","catm_trx_other","matm_other",
+      "tmobile_app","cmobile_app_trx")),
+  list(mes = 201910, campo = 
+    c("mrentabilidad", "mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen",
+    "ccomisiones_otras","mcomisiones_otras","chomebanking_transacciones")),
+  list(mes = 201905, campo = 
+    c("mrentabilidad", "mrentabilidad_annual", "mcomisiones","mactivos_margen","mpasivos_margen",
+    "ccomisiones_otras","mcomisiones_otras")),
+  list(mes = 201904, campo = 
+    c("ctarjeta_visa_debitos_automaticos","mttarjeta_visa_debitos_automaticos"))
+  #list(mes = 201910, campo = "mrentabilidad"),
+)
+
+for (par in zero_ratio) {
+  mes <- par$mes
+  feature <- par$campo
+  dataset[foto_mes == mes, (feature) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDcols = feature]
+}
+
+## Check 
+head(dataset[foto_mes==201904, mttarjeta_visa_debitos_automaticos],10)
+
 
 ###################################################################################################
 # Ranking en order descendente de cada feature respecto al mes de cada cliente, 
