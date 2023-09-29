@@ -22,6 +22,8 @@ dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
 dataset[1,8:10]
 
+dataset[is.na(dataset), ] <- 0 
+
 all_columns <- setdiff(
   colnames(dataset),
   c("numero_de_cliente", "foto_mes", "clase_ternaria")
@@ -33,9 +35,9 @@ colnames(data_clust)
 
 rf.fit <- randomForest(x = data_clust[, ..all_columns], y = NULL, ntree = 10000, proximity = TRUE, oob.prox = TRUE)
 hclust.rf <- hclust(as.dist(1-rf.fit$proximity), method = "ward.D2")
-rf.cluster = cutree(hclust.rf, k=3)
-data_clust$rf.clusters <- rf.cluster
-table(rf.cluster, data_clust$foto_mes)
+rf.cluster = cutree(hclust.rf, k=5)
+dataset$rf.clusters <- rf.cluster
+table(rf.cluster, dataset$foto_mes)
 
 
 # creo las carpetas donde van los resultados 
