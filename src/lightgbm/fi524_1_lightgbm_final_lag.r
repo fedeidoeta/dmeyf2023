@@ -2,14 +2,14 @@
 #   8 vCPU
 #  16 GB memoria RAM
 
-# fi524_1_5: 
+# fi524_1_6: 
 # - Entreno al modelo con datos del (201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 
 #  202011, 202012, 202101, 202102, 202103, 202104, 202105).
 # - Agrego lag de 6 meses de cada feature
-# - Reemplazo 0 por NA
+# - Reemplazo 0 por NA en meses y features selectos
 # - Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
-# - Utilizo mejor hyper de HT5240_1
-# - Sumo el hyper weight 100 a 1 (no se si esta bien)
+# - Utilizo mejor hyper de HT5240_2
+# - NO Sumo el hyper weight 100 a 1
 
 
 # limpio la memoria
@@ -23,7 +23,7 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA5240_1_5"
+PARAM$experimento <- "KA5240_1_6"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -34,11 +34,11 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
 PARAM$finalmodel$semilla <- 270029
 
-PARAM$finalmodel$num_iterations <- 3125 # 7198 ->3125
-PARAM$finalmodel$learning_rate <- 0.0103420582994214 # 0.0104796203951078-> 0.0103420582994214
-PARAM$finalmodel$feature_fraction <- 0.33082894908375 # 0.201186134823386 -> 0.33082894908375
-PARAM$finalmodel$min_data_in_leaf <- 14 # 3 -> 14
-PARAM$finalmodel$num_leaves <- 908 # 634 -> 908
+PARAM$finalmodel$num_iterations <- 1488 # 7198 ->3125 ->1488
+PARAM$finalmodel$learning_rate <- 0.010562788502033 # 0.0104796203951078-> 0.0103420582994214 ->0.010562788502033
+PARAM$finalmodel$feature_fraction <- 0.264023971867254 # 0.201186134823386 -> 0.33082894908375 ->0.264023971867254
+PARAM$finalmodel$min_data_in_leaf <- 1 # 3 -> 14 -> 1
+PARAM$finalmodel$num_leaves <- 439 # 634 -> 908 -> 439
 
 
 PARAM$finalmodel$max_bin <- 31
@@ -51,8 +51,39 @@ setwd("~/buckets/b1")
 # cargo el dataset donde voy a entrenar
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
-#____________________________________________________
+#_______________________________________________
+# FI: Coloco NA a todos los registos en 0
+zero_ratio <- list(
+  list(mes = 202006, campo = 
+    c("active_quarter", "internet", "mrentabilidad", "mrentabilidad_annual", 
+      "mcomisiones", "mactivos_margen", "mpasivos_margen", "mcuentas_saldo", 
+      "ctarjeta_debito_transacciones","mautoservicio", "ctarjeta_visa_transacciones", 
+      "mtarjeta_visa_consumo","ctarjeta_master_transacciones", "mtarjeta_master_consumo",
+      "ccomisiones_otras", "mcomisiones_otras","cextraccion_autoservicio","mextraccion_autoservicio",
+      "ccheques_depositados","mcheques_depositados","ccheques_emitidos","mcheques_emitidos",
+      "ccheques_depositados_rechazados","mcheques_depositados_rechazados","ccheques_emitidos_rechazados",
+      "mcheques_emitidos_rechazados","tcallcenter","ccallcenter_transacciones","thomebanking",
+      "chomebanking_transacciones","ccajas_transacciones","ccajas_consultas","ccajas_depositos",
+      "ccajas_extracciones","ccajas_otras","catm_trx","matm","catm_trx_other","matm_other",
+      "tmobile_app","cmobile_app_trx")),
+  list(mes = 201910, campo = 
+    c("mrentabilidad", "mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen",
+    "ccomisiones_otras","mcomisiones_otras","chomebanking_transacciones")),
+  list(mes = 201905, campo = 
+    c("mrentabilidad", "mrentabilidad_annual", "mcomisiones","mactivos_margen","mpasivos_margen",
+    "ccomisiones_otras","mcomisiones_otras")),
+  list(mes = 201904, campo = 
+    c("ctarjeta_visa_debitos_automaticos","mttarjeta_visa_debitos_automaticos"))
+  #list(mes = 201910, campo = "mrentabilidad"),
+)
 
+for (par in zero_ratio) {
+  mes <- par$mes
+  feature <- par$campo
+  dataset[foto_mes == mes, (feature) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDcols = feature]
+}
+
+#______________________________________________________________
 # FI: hago lag de los ultimos 6 meses de todas las features (menos numero cliente, foto mes y clase ternaria)
 
 all_columns <- setdiff(
@@ -68,12 +99,6 @@ for (i in periods){
     lagcolumns <- paste("lag", all_columns,i, sep=".")
     dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = all_columns,  by =numero_de_cliente]
 }
-
-#_______________________________________________
-# FI: Coloco NA a todos los registos en 0
-
-dataset[, (all_columns) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDcols = all_columns]
-
 
 #________________________________________________
 # FI: Ranking de cada cliente de cada mes en todas las features con 0 fijo
@@ -120,7 +145,7 @@ setwd(paste0("./exp/", PARAM$experimento, "/"))
 dtrain <- lgb.Dataset(
   data = data.matrix(dataset[train == 1L, campos_buenos, with = FALSE]),
   label = dataset[train == 1L, clase01],
-  weight = dataset[train == 1L, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ]
+  #weight = dataset[train == 1L, ifelse( clase_ternaria=="CONTINUA",   1.0, 100.0  ) ]
 )
 
 #__________________________________________________
@@ -191,7 +216,7 @@ setorder(tb_entrega, -prob)
 # suba TODOS los archivos a Kaggle
 # espera a la siguiente clase sincronica en donde el tema sera explicado
 
-cortes <- seq(8000, 15000, by = 500)
+cortes <- seq(8000, 13000, by = 500)
 for (envios in cortes) {
   tb_entrega[, Predicted := 0L]
   tb_entrega[1:envios, Predicted := 1L]
