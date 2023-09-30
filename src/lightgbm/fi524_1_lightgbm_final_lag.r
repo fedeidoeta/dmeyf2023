@@ -2,11 +2,11 @@
 #   8 vCPU
 #  16 GB memoria RAM
 
-# fi524_1_6: 
-# - Entreno al modelo con datos del (201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 
+# fi524_1_7: 
+# + Entreno al modelo con datos del (201907, 201908, 201909, 201910, 201911, 201912, 
 #  202011, 202012, 202101, 202102, 202103, 202104, 202105).
 # - Agrego lag de 6 meses de cada feature
-# - Reemplazo 0 por NA en meses y features selectos
+# + Reemplazo 0 por NA en meses y features selectos
 # - Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
 # - Utilizo mejor hyper de HT5240_2
 # - NO Sumo el hyper weight 100 a 1
@@ -23,12 +23,12 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA5240_1_6"
+PARAM$experimento <- "KA5240_1_7"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
 # meses donde se entrena el modelo
-PARAM$input$training <- c(201901, 201902, 201903, 201904, 201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 
+PARAM$input$training <- c(201907, 201908, 201909, 201910, 201911, 201912, 
   202011, 202012, 202101, 202102, 202103, 202104, 202105)
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
