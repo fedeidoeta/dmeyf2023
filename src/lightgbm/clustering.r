@@ -8,9 +8,7 @@ require("randomForest")
 
 
 PARAM <- list()
-PARAM$input$training <- c(201901, 201902, 201903, 201904, 201905,201906,201907, 
-                           201908,201909,201910,201911,201912, 
-                           202101, 202102, 202103, 202104, 202105)
+PARAM$input$training <- c(202101, 202102, 202103, 202104, 202105)
  PARAM$experimento <- "CLU"
 
 # Aqui empieza el programa 
@@ -29,14 +27,15 @@ all_columns <- setdiff(
   c("numero_de_cliente", "foto_mes", "clase_ternaria")
 )
 
-data_clust <- dataset[clase_ternaria =="BAJA+1" & foto_mes %in% PARAM$input$training]
+data_clust <- dataset[clase_ternaria =="BAJA+2" & foto_mes %in% PARAM$input$training]
 
 colnames(data_clust)
 
-rf.fit <- randomForest(x = data_clust[, ..all_columns], y = NULL, ntree = 10000, proximity = TRUE, oob.prox = TRUE)
+rf.fit <- randomForest(x = data_clust[, ..all_columns], y = NULL, ntree = 10, proximity = TRUE, oob.prox = TRUE)
 hclust.rf <- hclust(as.dist(1-rf.fit$proximity), method = "ward.D2")
 rf.cluster = cutree(hclust.rf, k=5)
 dataset$rf.clusters <- rf.cluster
+data_clust$rf.clusters <- rf.cluster
 table(rf.cluster, dataset$foto_mes)
 
 
@@ -47,4 +46,4 @@ table(rf.cluster, dataset$foto_mes)
   
  # Establezco el Working Directory DEL EXPERIMENTO 
  setwd(paste0("./exp/", PARAM$experimento, "/")) 
- fwrite(data_clust,file = paste0(PARAM$experimento, ".csv"),sep = ",")
+ fwrite(data_clust[, c("numero_de_cliente", "foto_mes","rf.clusters")],file = paste0(PARAM$experimento, ".csv"),sep = ",")
