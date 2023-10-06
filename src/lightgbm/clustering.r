@@ -46,3 +46,37 @@ table(rf.cluster, data_clust$foto_mes)
  # Establezco el Working Directory DEL EXPERIMENTO 
  setwd(paste0("./exp/", PARAM$experimento, "/")) 
  fwrite(data_clust[, c("numero_de_cliente", "foto_mes","rf.clusters")],file = paste0(PARAM$experimento, ".csv"),sep = ",")
+
+
+#########################################################################
+# Dendrograma
+
+install.packages("ggdendro")
+
+pdf("dendograma_test.pdf")
+
+library(ggdendro)
+dendrogram <- hclust(as.dist(1-rf.fit$proximity), method = 'ward.D')
+ggdendrogram(dendrogram, rotate = FALSE, labels = FALSE, theme_dendro = TRUE)
+dev.off()
+
+
+##############################################################
+#Utilizo Kmeans para hallar el k optimo
+
+set.seed(270001)
+wcss <- vector()
+for(i in 1:20){
+  wcss[i] <- sum(kmeans(as.dist(1-rf.fit$proximity), i)$withinss)
+}
+
+library(ggplot2)
+
+pdf("codo.pdf")
+ggplot() + geom_point(aes(x = 1:20, y = wcss), color = 'blue') + 
+  geom_line(aes(x = 1:20, y = wcss), color = 'blue') + 
+  ggtitle("Método del Codo") + 
+  xlab('Cantidad de Centroides k') + 
+  ylab('WCSS')
+
+dev.off()
