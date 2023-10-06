@@ -34,9 +34,8 @@ colnames(data_clust)
 rf.fit <- randomForest(x = data_clust[, ..all_columns], y = NULL, ntree = 10, proximity = TRUE, oob.prox = TRUE)
 hclust.rf <- hclust(as.dist(1-rf.fit$proximity), method = "ward.D2")
 rf.cluster = cutree(hclust.rf, k=5)
-dataset$rf.clusters <- rf.cluster
 data_clust$rf.clusters <- rf.cluster
-table(rf.cluster, dataset$foto_mes)
+table(rf.cluster, data_clust$foto_mes)
 
 
 # creo las carpetas donde van los resultados 
