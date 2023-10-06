@@ -9,7 +9,7 @@ require("randomForest")
 
 PARAM <- list()
 PARAM$input$training <- c(202101, 202102, 202103, 202104, 202105)
- PARAM$experimento <- "CLU"
+PARAM$experimento <- "CLU_2"
 
 # Aqui empieza el programa 
 setwd("~/buckets/b1") 
@@ -31,9 +31,9 @@ data_clust <- dataset[clase_ternaria =="BAJA+2" & foto_mes %in% PARAM$input$trai
 
 colnames(data_clust)
 
-rf.fit <- randomForest(x = data_clust[, ..all_columns], y = NULL, ntree = 10, proximity = TRUE, oob.prox = TRUE)
+rf.fit <- randomForest(x = data_clust[, ..all_columns], y = NULL, ntree = 1000, proximity = TRUE, oob.prox = TRUE)
 hclust.rf <- hclust(as.dist(1-rf.fit$proximity), method = "ward.D2")
-rf.cluster = cutree(hclust.rf, k=5)
+rf.cluster = cutree(hclust.rf, k=7)
 data_clust$rf.clusters <- rf.cluster
 table(rf.cluster, data_clust$foto_mes)
 
