@@ -5,15 +5,16 @@
 # se entrena con clase_binaria2  POS =  { BAJA+1, BAJA+2 }
 # Optimizacion Bayesiana de hiperparametros de  lightgbm,
 
-#fi823-1:
-# - Entreno al modelo:
+#fi823-1-under+100 iteraciones:
+# = Entreno al modelo:
 #   +PARAM$input$testing <- c(202105)
 #   +PARAM$input$validation <- c(202104)
 #   +PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103)
-# - No realizo undersampling
-# - Agrego lag de 6 meses de cada feature
-# - Reemplazo 0 por NA en meses y features selectos
-# - Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
+# + Realizo undersampling = 0.1
+# + Hago 100 iteraciones
+# = Agrego lag de 6 meses de cada feature
+# = Reemplazo 0 por NA en meses y features selectos
+# = Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
 
 
 
@@ -44,7 +45,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "HT8230"
+PARAM$experimento <- "HT8230_under"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -55,7 +56,7 @@ PARAM$input$validation <- c(202104)
 PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$undersampling <- 1.0
+PARAM$trainingstrategy$undersampling <- 0.1
 PARAM$trainingstrategy$semilla_azar <- 270001 # Aqui poner su  primer  semilla
 
 PARAM$hyperparametertuning$POS_ganancia <- 273000
@@ -109,7 +110,7 @@ PARAM$bo_lgb <- makeParamSet(
 )
 
 # si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
-PARAM$bo_iteraciones <- 50 # iteraciones de la Optimizacion Bayesiana
+PARAM$bo_iteraciones <- 100 # iteraciones de la Optimizacion Bayesiana
 
 #------------------------------------------------------------------------------
 # graba a un archivo los componentes de lista
