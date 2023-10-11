@@ -5,7 +5,7 @@
 # se entrena con clase_binaria2  POS =  { BAJA+1, BAJA+2 }
 # Optimizacion Bayesiana de hiperparametros de  lightgbm,
 
-#fi823-1-under+100 iteraciones:
+#fi823-2-under+100 iteraciones:
 # = Entreno al modelo:
 #   +PARAM$input$testing <- c(202105)
 #   +PARAM$input$validation <- c(202104)
@@ -13,8 +13,9 @@
 # + Realizo undersampling = 0.1
 # + Hago 100 iteraciones
 # = Agrego lag de 6 meses de cada feature
+# + Agrego delta lag de 1 y 2 periodo
 # = Reemplazo 0 por NA en meses y features selectos
-# = Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
+# + Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0 - V2
 
 
 
@@ -340,7 +341,6 @@ zero_ratio <- list(
     "ccomisiones_otras","mcomisiones_otras")),
   list(mes = 201904, campo = 
     c("ctarjeta_visa_debitos_automaticos","mttarjeta_visa_debitos_automaticos"))
-  #list(mes = 201910, campo = "mrentabilidad"),
 )
 
 for (par in zero_ratio) {
@@ -366,15 +366,31 @@ for (i in periods){
     dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = all_columns,  by =numero_de_cliente]
 }
 
+# Delta LAG de 1 y 2 periodos
+
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,1, sep=".") := get(vcol) - get(paste("lag", vcol,1, sep="."))]
+}
+
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,2, sep=".") := get(vcol) - get(paste("lag", vcol,2, sep="."))]
+}
+
+
 #________________________________________________
-# FI: Ranking de cada cliente de cada mes en todas las features con 0 fijo
+# FI: Ranking de cada cliente de cada mes en todas las features con 0 fijo - V2
 
-for (col in all_columns){
-  rankcolumns <- paste("rank", col, sep=".")
-  dataset[, (rankcolumns) :=
-             ifelse(.SD[[col]] > 0, frank(.SD[[col]], ties.method = "dense"),
-                    -frank(-.SD[[col]], ties.method = "dense")), by = foto_mes]
+col_moneda  <- colnames(dataset)
+col_moneda  <- col_moneda[col_moneda %like% "^(m|Visa_m|Master_m|vm_m)"]
 
+for( campo in col_moneda)
+{
+  cat( campo, " " )
+  rankcolumns <- paste("rank", campo, sep=".")
+  dataset[ get(campo) ==0, (rankcolumns) := 0 ]
+  dataset[ get(campo) > 0, (rankcolumns) :=   frank(  get(campo), ties.method="dense")  / .N, by= foto_mes ]
+  dataset[ get(campo) < 0, (rankcolumns) :=  -frank( -get(campo), ties.method="dense")  / .N, by= foto_mes ]
+  dataset[ , (campo) := NULL ]
 }
 
 # Fin FE
