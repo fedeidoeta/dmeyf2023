@@ -2,14 +2,14 @@
 #   8 vCPU
 #  64 GB memoria RAM
 
-#fi824:
-# - Periodo de train: c(201907, 201908, 201909, 201910, 201911, 
+#fi824_1:
+# = Periodo de train: c(201907, 201908, 201909, 201910, 201911, 
 #                          201912, 202011, 202012, 202101, 202102, 
 #                          202103, 202104, 202105)
-# - Utilizo los mejores hiperparametros de fi823
-# - Agrego lag de 6 meses de cada feature
-# - Reemplazo 0 por NA en meses y features selectos
-# - Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
+# + Utilizo los mejores hiperparametros de fi823_under
+# = Agrego lag de 6 meses de cada feature
+# = Reemplazo 0 por NA en meses y features selectos
+# = Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
 
 
 # limpio la memoria
@@ -23,7 +23,7 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA8240"
+PARAM$experimento <- "KA8240_1"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -37,11 +37,11 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 PARAM$finalmodel$semilla <- 270029
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 1343
-PARAM$finalmodel$optim$learning_rate <- 0.0235628806105752
-PARAM$finalmodel$optim$feature_fraction <- 0.497657499216029
-PARAM$finalmodel$optim$min_data_in_leaf <- 19746
-PARAM$finalmodel$optim$num_leaves <- 1015
+PARAM$finalmodel$optim$num_iterations <- 1865 # 1343 -> 1865
+PARAM$finalmodel$optim$learning_rate <- 0.0509888961244932 #0.0235628806105752 -> 0.0509888961244932
+PARAM$finalmodel$optim$feature_fraction <- 0.163876211111878 #0.497657499216029 -> 0.163876211111878
+PARAM$finalmodel$optim$min_data_in_leaf <- 2059 #19746 -> 2059
+PARAM$finalmodel$optim$num_leaves <- 434 #1015 -> 434
 
 
 # Hiperparametros FIJOS de  lightgbm
