@@ -2,10 +2,10 @@
 #   8 vCPU
 #  64 GB memoria RAM
 
-#fi824_2:
-# = Periodo de train: c(201907, 201908, 201909, 201910, 201911, 
+#fi824_3:
+#  Periodo de train: c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 
 #                          201912, 202011, 202012, 202101, 202102, 
-#                          202103, 202104, 202105)
+#                          202103, 202104, 202105) + agrego: 201905, 201906,
 # + Utilizo los mejores hiperparametros de fi823_under_2
 # = Agrego lag de 6 meses de cada feature
 # + Agrego delta lag de los primeros dos periodos
@@ -24,12 +24,12 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA8240_2"
+PARAM$experimento <- "KA8240_3"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
 # meses donde se entrena el modelo
-PARAM$input$training <- c(201907, 201908, 201909, 201910, 201911, 
+PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 
                           201912, 202011, 202012, 202101, 202102, 
                           202103, 202104, 202105)
 
