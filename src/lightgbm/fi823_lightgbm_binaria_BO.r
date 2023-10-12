@@ -5,15 +5,15 @@
 # se entrena con clase_binaria2  POS =  { BAJA+1, BAJA+2 }
 # Optimizacion Bayesiana de hiperparametros de  lightgbm,
 
-#fi823-2-under+100 iteraciones:
+#fi823-3-under+100 iteraciones:
 # = Entreno al modelo:
 #   +PARAM$input$testing <- c(202105)
 #   +PARAM$input$validation <- c(202104)
 #   +PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103)
-# + Realizo undersampling = 0.1
-# + Hago 100 iteraciones
+# ++ Realizo undersampling = 0.4
+# = Hago 100 iteraciones
 # = Agrego lag de 6 meses de cada feature
-# + Agrego delta lag de 1 y 2 periodo
+# + Agrego delta lag de 1 hasta 6 periodos.
 # = Reemplazo 0 por NA en meses y features selectos
 # + Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0 - V2
 
@@ -46,7 +46,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "HT8230_under_2"
+PARAM$experimento <- "HT8230_under_3"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -57,7 +57,7 @@ PARAM$input$validation <- c(202104)
 PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$undersampling <- 0.1
+PARAM$trainingstrategy$undersampling <- 0.4
 PARAM$trainingstrategy$semilla_azar <- 270001 # Aqui poner su  primer  semilla
 
 PARAM$hyperparametertuning$POS_ganancia <- 273000
@@ -376,6 +376,21 @@ for (vcol in all_columns){
   dataset[, paste("delta", vcol,2, sep=".") := get(vcol) - get(paste("lag", vcol,2, sep="."))]
 }
 
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,3, sep=".") := get(vcol) - get(paste("lag", vcol,3, sep="."))]
+}
+
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,4, sep=".") := get(vcol) - get(paste("lag", vcol,4, sep="."))]
+}
+
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,5, sep=".") := get(vcol) - get(paste("lag", vcol,5, sep="."))]
+}
+
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,6, sep=".") := get(vcol) - get(paste("lag", vcol,6, sep="."))]
+}
 
 #________________________________________________
 # FI: Ranking de cada cliente de cada mes en todas las features con 0 fijo - V2
