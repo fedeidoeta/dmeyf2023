@@ -9,7 +9,7 @@ require("randomForest")
 
 PARAM <- list()
 PARAM$input$training <- c(202101, 202102, 202103, 202104, 202105)
-PARAM$experimento <- "CLU_2"
+PARAM$experimento <- "CLU_2_2"
 
 # Aqui empieza el programa 
 setwd("~/buckets/b1") 
@@ -95,11 +95,13 @@ require("rlist")
 
 PARAM <- list()
 
-PARAM$input$dataset <- "./competencia_02.csv.gz"
-PARAM$input$cluster <- "./CLU_2.csv"
-PARAM$experimento <- "CLU_hist"
+PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
+PARAM$input$cluster <- "./datasets/CLU_2.csv"
+PARAM$experimento <- "CLU_hist_2"
+PARAM$archivo <- "CLU_hist_2_mean"
 
-setwd("./datasets/")
+
+#setwd("./datasets/")
 
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 clu <- fread(PARAM$input$cluster, stringsAsFactors = TRUE)
@@ -107,7 +109,7 @@ clu <- fread(PARAM$input$cluster, stringsAsFactors = TRUE)
 # creo la carpeta donde va el experimento
 dir.create(paste0("./exp/", PARAM$experimento, "/"), showWarnings = FALSE)
 # Establezco el Working Directory DEL EXPERIMENTO
-setwd(paste0("../exp/", PARAM$experimento, "/"))
+setwd(paste0("./exp/", PARAM$experimento, "/"))
 
 dataset[1,8:10]
 
@@ -119,14 +121,38 @@ periodos <- c(202101, 202102, 202103, 202104, 202105)
 
 data_clust_hist_select <- data_clust_hist[foto_mes %in% periodos]
 
-columnas_numericas <- colnames(data_clust_hist_select)[sapply(data_clust_hist_select, is.numeric)]
+#columnas_numericas <- colnames(data_clust_hist_select)[sapply(data_clust_hist_select, is.numeric)]
 
-resultados <- data_clust_hist_select[, lapply(.SD, mean), by = rf.clusters, .SDcols = columnas_numericas]
+all_columns <- setdiff(
+  colnames(dataset),
+  c("numero_de_cliente", "foto_mes", "clase_ternaria")
+)
 
-fwrite(resultados,file = paste0(PARAM$experimento, ".csv"),sep = ",")
+data_clust_hist_select[is.na(data_clust_hist_select), ] <- 0
 
-head(data_clust_hist,2)
+resultados <- data_clust_hist_select[, lapply(.SD, mean), by = rf.clusters, .SDcols = all_columns]
 
+fwrite(resultados,file = paste0(PARAM$archivo, ".csv"),sep = ",")
+
+fwrite(data_clust_hist,file = paste0("data_clust_hist_2021.csv"),sep = ",")
+
+pdf( paste0("snap_mean", ".pdf"))
+
+for (campo in all_columns){
+
+text(
+  x = barplot(resultados[[campo]],
+        main = campo,
+        col = viridis::viridis(5),
+        names.arg = resultados$rf.clusters),
+  y = resultados[[campo]],  # Ajusta la posición vertical de las etiquetas
+    labels = round(resultados[[campo]],3),  # Etiquetas con los valores de Y
+    pos = 1,  # Posición de las etiquetas (3 = arriba)
+    col = c("white","white","white","black","black","black","black"),  # Color del texto
+    cex = 0.8  # Tamaño del texto
+)
+}
+dev.off()
 #######################################################################
 # Graficos de todo la historia del dataset
 
