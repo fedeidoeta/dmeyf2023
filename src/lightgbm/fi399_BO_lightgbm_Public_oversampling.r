@@ -18,17 +18,17 @@ require("mlrMBO")
 
 # Defino la  Optimizacion Bayesiana
 PARAM <- list()
-PARAM$experimento <- "KAP399"
+PARAM$experimento <- "RP001"
 
 # cantidad de iteraciones de la Optimizacion Bayesiana
 PARAM$BO_iter <- 34 # iteraciones inteligentes
 
 #  de los hiperparametros
 PARAM$hs <- makeParamSet(
-  makeIntegerParam("minsplit", lower = 650L, upper = 1000L), #antes lower = 500L, upper = 1500L
-  makeIntegerParam("minbucket", lower = 200L, upper = 400L),# antes lower = 200L, upper = 800L
-  makeIntegerParam("maxdepth", lower = 9L, upper = 10L), # paso lower 6 --> 9, upper: 12--> 10
-  makeIntegerParam("corte", lower = 9000L, upper = 15000L), # lower: 8000-->9000
+  makeIntegerParam("minsplit", lower = 500L, upper = 1500L), #antes lower = 500L, upper = 1500L
+  makeIntegerParam("minbucket", lower = 200L, upper = 1000L),# antes lower = 200L, upper = 800L
+  makeIntegerParam("maxdepth", lower = 6L, upper = 20L), # paso lower 6 --> 9, upper: 12--> 10
+  makeIntegerParam("corte", lower = 8000L, upper = 15000L), # lower: 8000-->9000
   forbidden = quote(minbucket > 0.5 * minsplit)
 )
 # minbuket NO PUEDE ser mayor que la mitad de minsplit
@@ -129,7 +129,7 @@ ArbolSimple <- function( data, param, iteracion) {
   tablita[ , Predicted := 0L ]
   tablita[ 1:param2$corte, Predicted := 1L ]
 
-  nom_submit <- paste0("z3992_Ov", sprintf( "%03d", iteracion ), ".csv" )
+  nom_submit <- paste0("RP001", sprintf( "%03d", iteracion ), ".csv" )
   fwrite( tablita[ , list(numero_de_cliente, Predicted)],
           file= nom_submit,
           sep= "," )
