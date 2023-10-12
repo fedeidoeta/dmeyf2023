@@ -21,14 +21,14 @@ PARAM <- list()
 PARAM$experimento <- "KAP399"
 
 # cantidad de iteraciones de la Optimizacion Bayesiana
-PARAM$BO_iter <- 34 # iteraciones inteligentes
+PARAM$BO_iter <- 54 # iteraciones inteligentes
 
 #  de los hiperparametros
 PARAM$hs <- makeParamSet(
-  makeIntegerParam("minsplit", lower = 650L, upper = 1000L), #antes lower = 500L, upper = 1500L
-  makeIntegerParam("minbucket", lower = 200L, upper = 400L),# antes lower = 200L, upper = 800L
-  makeIntegerParam("maxdepth", lower = 9L, upper = 10L), # paso lower 6 --> 9, upper: 12--> 10
-  makeIntegerParam("corte", lower = 9000L, upper = 15000L), # lower: 8000-->9000
+  makeIntegerParam("minsplit", lower = 500L, upper = 3000L), #antes lower = 500L, upper = 1500L
+  makeIntegerParam("minbucket", lower = 200L, upper = 1800L),# antes lower = 200L, upper = 800L
+  makeIntegerParam("maxdepth", lower = 6L, upper = 15L), # paso lower 6 --> 9, upper: 12--> 10
+  makeIntegerParam("corte", lower = 7000L, upper = 15000L), # lower: 8000-->9000
   forbidden = quote(minbucket > 0.5 * minsplit)
 )
 # minbuket NO PUEDE ser mayor que la mitad de minsplit
@@ -169,8 +169,8 @@ EstimarGanancia <- function(x) {
 # Aqui empieza el programa
 
 # Establezco el Working Directory
-setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas")
-
+#setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas")
+setwd("~/buckets/b1/")
 # cargo los datos
 PARAM <- list()
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
