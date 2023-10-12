@@ -33,19 +33,29 @@ colnames(data_clust)
 
 rf.fit <- randomForest(x = data_clust[, ..all_columns], y = NULL, ntree = 1000, proximity = TRUE, oob.prox = TRUE)
 hclust.rf <- hclust(as.dist(1-rf.fit$proximity), method = "ward.D2")
-rf.cluster = cutree(hclust.rf, k=7)
+rf.cluster = cutree(hclust.rf, k=5)
 data_clust$rf.clusters <- rf.cluster
 table(rf.cluster, data_clust$foto_mes)
 
+feature_importance <- importance(rf.fit)
+
+feature_names <- rownames(feature_importance)
+
+# Agregar una columna con los nombres de las características
+feature_importance <- cbind("Feature" = feature_names, feature_importance)
+
 
 # creo las carpetas donde van los resultados 
- # creo la carpeta donde va el experimento 
- dir.create("./exp/", showWarnings = FALSE) 
- dir.create(paste0("./exp/", PARAM$experimento, "/"), showWarnings = FALSE) 
-  
- # Establezco el Working Directory DEL EXPERIMENTO 
- setwd(paste0("./exp/", PARAM$experimento, "/")) 
- fwrite(data_clust[, c("numero_de_cliente", "foto_mes","rf.clusters")],file = paste0(PARAM$experimento, ".csv"),sep = ",")
+# creo la carpeta donde va el experimento 
+dir.create("./exp/", showWarnings = FALSE) 
+dir.create(paste0("./exp/", PARAM$experimento, "/"), showWarnings = FALSE) 
+
+# Establezco el Working Directory DEL EXPERIMENTO 
+setwd(paste0("./exp/", PARAM$experimento, "/")) 
+
+write.table(as.data.frame(feature_importance), file = paste0("feature_importance.txt"), sep = "\t", col.names = TRUE, row.names = FALSE)
+
+fwrite(data_clust[, c("numero_de_cliente", "foto_mes","rf.clusters")],file = paste0(PARAM$experimento, ".csv"),sep = ",")
 
 
 #########################################################################
