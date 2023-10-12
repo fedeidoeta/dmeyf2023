@@ -2,12 +2,13 @@
 #   8 vCPU
 #  64 GB memoria RAM
 
-#fi824_1:
+#fi824_2:
 # = Periodo de train: c(201907, 201908, 201909, 201910, 201911, 
 #                          201912, 202011, 202012, 202101, 202102, 
 #                          202103, 202104, 202105)
-# + Utilizo los mejores hiperparametros de fi823_under
+# + Utilizo los mejores hiperparametros de fi823_under_2
 # = Agrego lag de 6 meses de cada feature
+# + Agrego delta lag de los primeros dos periodos
 # = Reemplazo 0 por NA en meses y features selectos
 # = Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
 
@@ -23,7 +24,7 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA8240_1"
+PARAM$experimento <- "KA8240_2"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -37,11 +38,12 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 PARAM$finalmodel$semilla <- 270029
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 1865 # 1343 -> 1865
-PARAM$finalmodel$optim$learning_rate <- 0.0509888961244932 #0.0235628806105752 -> 0.0509888961244932
-PARAM$finalmodel$optim$feature_fraction <- 0.163876211111878 #0.497657499216029 -> 0.163876211111878
-PARAM$finalmodel$optim$min_data_in_leaf <- 2059 #19746 -> 2059
-PARAM$finalmodel$optim$num_leaves <- 434 #1015 -> 434
+PARAM$finalmodel$optim$num_iterations <- 1539 # 1343 -> 1865 -> 1539
+PARAM$finalmodel$optim$learning_rate <- 0.0203714126264267 #0.0235628806105752 -> 0.0509888961244932 ->0.0203714126264267
+PARAM$finalmodel$optim$feature_fraction <- 0.927367919525626 #0.497657499216029 -> 0.163876211111878 -> 0.927367919525626
+PARAM$finalmodel$optim$min_data_in_leaf <- 2339 #19746 -> 2059 -> 2339
+PARAM$finalmodel$optim$num_leaves <- 795 #1015 -> 434 -> 795
+
 
 
 # Hiperparametros FIJOS de  lightgbm
@@ -103,7 +105,6 @@ dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 #______________________________________________________
 # Feature engineering
 
-
 #_______________________________________________
 # FI: Coloco NA a todos los registos en 0
 zero_ratio <- list(
@@ -127,7 +128,6 @@ zero_ratio <- list(
     "ccomisiones_otras","mcomisiones_otras")),
   list(mes = 201904, campo = 
     c("ctarjeta_visa_debitos_automaticos","mttarjeta_visa_debitos_automaticos"))
-  #list(mes = 201910, campo = "mrentabilidad"),
 )
 
 for (par in zero_ratio) {
@@ -153,15 +153,31 @@ for (i in periods){
     dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = all_columns,  by =numero_de_cliente]
 }
 
+# Delta LAG de 1 y 2 periodos
+
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,1, sep=".") := get(vcol) - get(paste("lag", vcol,1, sep="."))]
+}
+
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,2, sep=".") := get(vcol) - get(paste("lag", vcol,2, sep="."))]
+}
+
+
 #________________________________________________
-# FI: Ranking de cada cliente de cada mes en todas las features con 0 fijo
+# FI: Ranking de cada cliente de cada mes en todas las features con 0 fijo - V2
 
-for (col in all_columns){
-  rankcolumns <- paste("rank", col, sep=".")
-  dataset[, (rankcolumns) :=
-             ifelse(.SD[[col]] > 0, frank(.SD[[col]], ties.method = "dense"),
-                    -frank(-.SD[[col]], ties.method = "dense")), by = foto_mes]
+col_moneda  <- colnames(dataset)
+col_moneda  <- col_moneda[col_moneda %like% "^(m|Visa_m|Master_m|vm_m)"]
 
+for( campo in col_moneda)
+{
+  cat( campo, " " )
+  rankcolumns <- paste("rank", campo, sep=".")
+  dataset[ get(campo) ==0, (rankcolumns) := 0 ]
+  dataset[ get(campo) > 0, (rankcolumns) :=   frank(  get(campo), ties.method="dense")  / .N, by= foto_mes ]
+  dataset[ get(campo) < 0, (rankcolumns) :=  -frank( -get(campo), ties.method="dense")  / .N, by= foto_mes ]
+  dataset[ , (campo) := NULL ]
 }
 
 # Fin FE
