@@ -188,11 +188,21 @@ tbl <- data_clust_hist[
     by= .(rf.clusters,foto_mes)
   ]
 
+tbl_sano <- dataset[
+    ,
+    list("mean" = sum(get(campo), na.rm = TRUE) / .N),
+    by= foto_mes
+  ]
+tbl_sano <- tbl_sano[, rf.clusters:= 99]
+
+combined_tbl <- rbind(tbl, tbl_sano)
+
+
 # Excluye los ultimos dos periodos
-tbl <- subset(tbl, !(foto_mes %in% c(202107, 202106)))
+combined_tbl <- subset(combined_tbl, !(foto_mes %in% c(202107, 202106)))
 
 # Crear un gráfico de líneas múltiples
-p <- ggplot(data = tbl, aes(x = as.factor(foto_mes), y = mean, group = rf.clusters, color = as.factor(rf.clusters))) +
+p <- ggplot(data = combined_tbl, aes(x = as.factor(foto_mes), y = mean, group = rf.clusters, color = as.factor(rf.clusters))) +
   geom_line() +
   labs(
     title = paste0("Media de ", campo, " por Cluster"),
