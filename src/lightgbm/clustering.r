@@ -105,7 +105,7 @@ require("rlist")
 PARAM <- list()
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
-PARAM$input$cluster <- "./datasets/CLU_2.csv"
+PARAM$input$cluster <- "./datasets/CLU_2_3.csv"
 PARAM$experimento <- "CLU_hist_2"
 PARAM$archivo <- "CLU_hist_2_mean"
 
@@ -169,6 +169,34 @@ text(
 )
 }
 dev.off()
+#####################################################
+
+# Boxplot
+
+campo <- "mrentabilidad"
+
+all_columns <- setdiff(
+  colnames(data_clust_hist),
+  c("numero_de_cliente", "foto_mes", "clase_ternaria","i.foto_mes","rf.clusters")
+)
+#options(ggplot2.width = 8, ggplot2.height =5) 
+
+#campo <- "ctrx_quarter"
+
+pdf( paste0("boxplot_2_3", ".pdf"))
+
+for (campo in all_columns) {
+
+p <- ggplot(data = data_clust_hist_select, aes( x = as.factor(rf.clusters), y = !!sym(campo), fill = as.factor(rf.clusters)))+
+  geom_boxplot()
+
+print(p)
+}
+
+dev.off()
+
+
+
 #######################################################################
 ## Graficos de todo la historia del dataset
 #
@@ -254,8 +282,8 @@ library("ggplot2")
 PARAM <- list()
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
-PARAM$input$cluster <- "./datasets/CLU_2.csv"
-PARAM$experimento <- "CLU_hist_2"
+PARAM$input$cluster <- "./datasets/CLU_2_3.csv"
+PARAM$experimento <- "CLU_hist_2_3"
 PARAM$archivo <- "CLU_hist_2_mean"
 
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
@@ -308,3 +336,4 @@ p <- ggplot(tbl, aes(mes_relativo, mean, colour = as.factor(rf.clusters),
 }
 
 dev.off()
+
