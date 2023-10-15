@@ -337,3 +337,143 @@ p <- ggplot(tbl, aes(mes_relativo, mean, colour = as.factor(rf.clusters),
 
 dev.off()
 
+##############################CONTINUA########################################
+
+# limpio la memoria
+rm(list = ls()) # remove all objects
+gc() # garbage collection
+
+require("data.table")
+require("rlist")
+require("randomForest")
+
+
+PARAM <- list()
+PARAM$input$training <- c(202105)
+PARAM$experimento <- "CLU_CONT"
+
+# Aqui empieza el programa 
+setwd("~/buckets/b1") 
+
+PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
+
+dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
+
+# Imputo con 0 a todos los NA
+dataset[is.na(dataset), ] <- -99 ## Revisar si conviene colocar en 0 todos los NA
+
+all_columns <- setdiff(
+  colnames(dataset),
+  c("numero_de_cliente", "foto_mes", "clase_ternaria")
+)
+
+data_clust <- dataset[clase_ternaria =="CONTINUA" & foto_mes %in% PARAM$input$training]
+
+colnames(data_clust)
+
+rf.fit <- randomForest(x = data_clust[, ..all_columns], y = NULL, ntree = 1000, proximity = TRUE, oob.prox = TRUE)
+hclust.rf <- hclust(as.dist(1-rf.fit$proximity), method = "ward.D2")
+rf.cluster = cutree(hclust.rf, k=5)
+data_clust$rf.clusters <- rf.cluster
+table(rf.cluster, data_clust$foto_mes)
+
+feature_importance <- importance(rf.fit)
+
+feature_names <- rownames(feature_importance)
+
+# Agregar una columna con los nombres de las características
+feature_importance <- cbind("Feature" = feature_names, feature_importance)
+
+
+# creo las carpetas donde van los resultados 
+# creo la carpeta donde va el experimento 
+dir.create("./exp/", showWarnings = FALSE) 
+dir.create(paste0("./exp/", PARAM$experimento, "/"), showWarnings = FALSE) 
+
+# Establezco el Working Directory DEL EXPERIMENTO 
+setwd(paste0("./exp/", PARAM$experimento, "/")) 
+
+write.table(as.data.frame(feature_importance), file = paste0("feature_importance.txt"), sep = "\t", col.names = TRUE, row.names = FALSE)
+
+fwrite(data_clust[, c("numero_de_cliente", "foto_mes","rf.clusters")],file = paste0(PARAM$experimento, ".csv"),sep = ",")
+
+# Analisis de los resultados
+
+
+# limpio la memoria
+rm(list = ls()) # remove all objects
+gc() # garbage collection
+
+require("data.table")
+require("rlist")
+
+PARAM <- list()
+
+PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
+PARAM$input$cluster <- "./datasets/CLU_2_3.csv"
+PARAM$experimento <- "CLU_hist_2"
+PARAM$archivo <- "CLU_hist_2_mean"
+
+
+#setwd("./datasets/")
+
+dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
+clu <- fread(PARAM$input$cluster, stringsAsFactors = TRUE)
+
+# creo la carpeta donde va el experimento
+dir.create(paste0("./exp/", PARAM$experimento, "/"), showWarnings = FALSE)
+# Establezco el Working Directory DEL EXPERIMENTO
+setwd(paste0("./exp/", PARAM$experimento, "/"))
+
+# Join dataset con clusters
+data_clust_hist <- dataset[clu, on = "numero_de_cliente"]
+
+#Selecciono periodos para analizar la media
+periodos <- c(202101, 202102, 202103, 202104, 202105)
+
+#Selecciono columnas
+all_columns <- setdiff(
+  colnames(dataset),
+  c("numero_de_cliente", "foto_mes", "clase_ternaria")
+)
+
+#Resultados cluster con historia
+data_clust_hist_select <- data_clust_hist[foto_mes %in% periodos]
+data_clust_hist_select[is.na(data_clust_hist_select), ] <- 0
+resultados <- data_clust_hist_select[, lapply(.SD, mean), by = rf.clusters, .SDcols = all_columns]
+
+
+#Resultados continua
+resultados_cont <- dataset[foto_mes %in% periodos]
+resultados_cont[is.na(resultados_cont), ] <- 0
+resultados_cont <- resultados_cont[, lapply(.SD, mean), .SDcols = all_columns]
+
+resultados_cont <- resultados_cont[, rf.clusters:= 99]
+
+combined_resultado <- rbind(resultados, resultados_cont)
+
+
+fwrite(resultados,file = paste0(PARAM$archivo, ".csv"),sep = ",")
+
+fwrite(data_clust_hist,file = paste0("data_clust_hist_2021.csv"),sep = ",")
+
+pdf( paste0("snap_mean_cont", ".pdf"))
+
+for (campo in all_columns){
+
+text(
+  x = barplot(combined_resultado[[campo]],
+        main = campo,
+        col = viridis::viridis(6),
+        names.arg = combined_resultado$rf.clusters),
+  y = combined_resultado[[campo]],  # Ajusta la posición vertical de las etiquetas
+    labels = round(combined_resultado[[campo]],3),  # Etiquetas con los valores de Y
+    pos = 1,  # Posición de las etiquetas (3 = arriba)
+    col = c("white","white","white","black","black","black","black"),  # Color del texto
+    cex = 0.8  # Tamaño del texto
+)
+}
+dev.off()
+
+
+
