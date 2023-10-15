@@ -2,7 +2,7 @@ using CSV,  DataFrames
 
 periodo_anterior(x::Integer) =  x % 100 > 1  ?  x-1  : 12 + (div(x,100) -1) * 100
 
-df = CSV.read("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas/datasets/competencia_02_crudo.csv.gz", DataFrame)
+df = CSV.read("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas/datasets/datasets_competencia_02_crudo.csv.gz", DataFrame)
 sort!(df, [:numero_de_cliente, :foto_mes])
 
 global periodo_ultimo = maximum( df.foto_mes )
@@ -26,5 +26,16 @@ for i in 1:last
           df.clase_ternaria[i] = "BAJA+2"
   end
 end
+
+## Nueva linea
+
+for i in 1:last
+  if coalesce(df.clase_ternaria[i], "")=="BAJA+2" &&  i+1 < last && df.clase_ternaria[i+1]=="CONTINUA" && df.numero_de_cliente[i] == df.numero_de_cliente[i+1]
+        df.clase_ternaria[i] = "CONTINUA"
+  end
+  if coalesce(df.clase_ternaria[i], "")=="BAJA+1" &&  i+1 < last && df.clase_ternaria[i+1]=="CONTINUA" && df.numero_de_cliente[i] == df.numero_de_cliente[i+1]
+    df.clase_ternaria[i] = "CONTINUA"
+  end
+end  
 
 CSV.write( "competencia_02_julia.csv", df )

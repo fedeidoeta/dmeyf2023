@@ -74,9 +74,22 @@ setorder(dataset, numero_de_cliente, foto_mes)
 periods <- seq(1, 3) # Seleccionar cantidad de periodos 
 
 for (i in periods){
-    lagcolumns <- paste("lag", all_columns,i, sep=".")
-    dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = all_columns,  by =numero_de_cliente]
+    lagcolumns <- paste("lag", columns,i, sep=".")
+    dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = columns,  by =numero_de_cliente]
 }
+
+#deltas
+
+for (vcol in columns)
+{
+  dataset[, paste("delta", vcol,2, sep=".") := get(vcol) - get(paste("lag", vcol,2, sep="."))]
+}
+
+head(dataset[, delta.ctrx_quarter.2])
+
+
+
+
 # Check de los primeros 3 meses y 100 registros
 head(dataset[, c("numero_de_cliente", "ctrx_quarter", "lag.ctrx_quarter.1", "lag.mautoservicio.2")], 100)
 
@@ -121,7 +134,6 @@ zero_ratio <- list(
     "ccomisiones_otras","mcomisiones_otras")),
   list(mes = 201904, campo = 
     c("ctarjeta_visa_debitos_automaticos","mttarjeta_visa_debitos_automaticos"))
-  #list(mes = 201910, campo = "mrentabilidad"),
 )
 
 for (par in zero_ratio) {
@@ -143,7 +155,9 @@ all_columns <- setdiff(
   c("numero_de_cliente", "foto_mes", "clase_ternaria")
 )
 
-for (col in all_columns){
+col_moneda  <- colnames(dataset)
+col_moneda  <- col_moneda[col_moneda %like% "^(m|Visa_m|Master_m|vm_m)"]
+for (col in col_moneda){
     rankcolumns <- paste("rank", col, sep=".")
     dataset[, (rankcolumns):= frank(-.SD[[col]], ties.method= "dense"), by = foto_mes]
 }
@@ -174,4 +188,24 @@ setorder(dataset, numero_de_cliente, foto_mes)
 dataset[numero_de_cliente==29202973, c("numero_de_cliente","foto_mes", "mcuentas_saldo", "rank.mcuentas_saldo")]
 
 head(dataset)
+
+######################################################################################
+# Ranking con 0 vale la pena? Tiene sentido para marcar al arbol donde --- V2
+# es la referencia 0 en cada periodo
+
+col_moneda  <- colnames(dataset)
+col_moneda  <- col_moneda[col_moneda %like% "^(m|Visa_m|Master_m|vm_m)"]
+
+for( campo in col_moneda)
+{
+  cat( campo, " " )
+  rankcolumns <- paste("rank", campo, sep=".")
+  dataset[ get(campo) ==0, (rankcolumns) := 0 ]
+  dataset[ get(campo) > 0, (rankcolumns) :=   frank(  get(campo), ties.method="dense")  / .N, by= foto_mes ]
+  dataset[ get(campo) < 0, (rankcolumns) :=  -frank( -get(campo), ties.method="dense")  / .N, by= foto_mes ]
+  dataset[ , (campo) := NULL ]
+}
+head(dataset[, rank.mrentabilidad])
+
+colnames(dataset)
 

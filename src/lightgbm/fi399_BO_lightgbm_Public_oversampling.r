@@ -8,7 +8,7 @@ gc() # garbage collection
 
 require("data.table")
 require("rlist")
-
+require("rpart")
 require("parallel")
 
 # paquetes necesarios para la Bayesian Optimization
