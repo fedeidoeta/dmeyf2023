@@ -1,14 +1,14 @@
 # para correr el Google Cloud
 #   8 vCPU
-#  64 GB memoria RAM
+#  256 GB memoria RAM
 
-#fi824_3:
-#  Periodo de train: c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 
+#fi824_5:
+# - Periodo de train: c(201907, 201908, 201909, 201910, 201911, 
 #                          201912, 202011, 202012, 202101, 202102, 
-#                          202103, 202104, 202105) + agrego: 201905, 201906,
-# + Utilizo los mejores hiperparametros de fi823_under_2
+#                          202103, 202104, 202105)
+# + Utilizo los mejores hiperparametros de fi823_under_3
 # = Agrego lag de 6 meses de cada feature
-# + Agrego delta lag de los primeros dos periodos
+# + Agrego delta lag de los primeros seis periodos
 # = Reemplazo 0 por NA en meses y features selectos
 # = Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0
 
@@ -24,12 +24,12 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA8240_3"
+PARAM$experimento <- "KA8240_5"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
 # meses donde se entrena el modelo
-PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 
+PARAM$input$training <- c(201907, 201908, 201909, 201910, 201911, 
                           201912, 202011, 202012, 202101, 202102, 
                           202103, 202104, 202105)
 
@@ -38,11 +38,11 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 PARAM$finalmodel$semilla <- 270029
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 1539 # 1343 -> 1865 -> 1539
-PARAM$finalmodel$optim$learning_rate <- 0.0203714126264267 #0.0235628806105752 -> 0.0509888961244932 ->0.0203714126264267
-PARAM$finalmodel$optim$feature_fraction <- 0.927367919525626 #0.497657499216029 -> 0.163876211111878 -> 0.927367919525626
-PARAM$finalmodel$optim$min_data_in_leaf <- 2339 #19746 -> 2059 -> 2339
-PARAM$finalmodel$optim$num_leaves <- 795 #1015 -> 434 -> 795
+PARAM$finalmodel$optim$num_iterations <- 1027 # 1343 -> 1865 -> 1539 -> 1027
+PARAM$finalmodel$optim$learning_rate <- 0.162599417617786 #0.0235628806105752 -> 0.0509888961244932 ->0.0203714126264267 -> 0.162599417617786
+PARAM$finalmodel$optim$feature_fraction <- 0.519319201630634 #0.497657499216029 -> 0.163876211111878 -> 0.927367919525626 -> 0.519319201630634
+PARAM$finalmodel$optim$min_data_in_leaf <- 39800 #19746 -> 2059 -> 2339 -> 39800
+PARAM$finalmodel$optim$num_leaves <- 501 #1015 -> 434 -> 795 -> 501
 
 
 
@@ -101,9 +101,9 @@ dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 #   Sin lags no hay paraiso ! corta la bocha
 #   https://rdrr.io/cran/data.table/man/shift.html
 
-
 #______________________________________________________
 # Feature engineering
+
 
 #_______________________________________________
 # FI: Coloco NA a todos los registos en 0
@@ -153,7 +153,7 @@ for (i in periods){
     dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = all_columns,  by =numero_de_cliente]
 }
 
-# Delta LAG de 1 y 2 periodos
+# Delta LAG de 1 a 6 periodos
 
 for (vcol in all_columns){
   dataset[, paste("delta", vcol,1, sep=".") := get(vcol) - get(paste("lag", vcol,1, sep="."))]
@@ -163,6 +163,21 @@ for (vcol in all_columns){
   dataset[, paste("delta", vcol,2, sep=".") := get(vcol) - get(paste("lag", vcol,2, sep="."))]
 }
 
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,3, sep=".") := get(vcol) - get(paste("lag", vcol,3, sep="."))]
+}
+
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,4, sep=".") := get(vcol) - get(paste("lag", vcol,4, sep="."))]
+}
+
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,5, sep=".") := get(vcol) - get(paste("lag", vcol,5, sep="."))]
+}
+
+for (vcol in all_columns){
+  dataset[, paste("delta", vcol,6, sep=".") := get(vcol) - get(paste("lag", vcol,6, sep="."))]
+}
 
 #________________________________________________
 # FI: Ranking de cada cliente de cada mes en todas las features con 0 fijo - V2
@@ -182,6 +197,7 @@ for( campo in col_moneda)
 
 # Fin FE
 #--------------------------------------
+
 
 # paso la clase a binaria que tome valores {0,1}  enteros
 # set trabaja con la clase  POS = { BAJA+1, BAJA+2 }
@@ -267,7 +283,7 @@ setorder(tb_entrega, -prob)
 # suba TODOS los archivos a Kaggle
 # espera a la siguiente clase sincronica en donde el tema sera explicado
 
-cortes <- seq(8000, 15000, by = 500)
+cortes <- seq(9000, 12000, by = 200)
 for (envios in cortes) {
   tb_entrega[, Predicted := 0L]
   tb_entrega[1:envios, Predicted := 1L]

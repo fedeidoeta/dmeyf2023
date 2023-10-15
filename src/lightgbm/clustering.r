@@ -109,9 +109,9 @@ require("rlist")
 PARAM <- list()
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
-PARAM$input$cluster <- "./datasets/CLU_2_3.csv"
-PARAM$experimento <- "CLU_hist_2_3"
-PARAM$archivo <- "CLU_hist_2_3"
+PARAM$input$cluster <- "./datasets/CLU_2.csv"
+PARAM$experimento <- "CLU_hist_2"
+PARAM$archivo <- "CLU_hist_2_mean"
 
 setwd("~/buckets/b1") 
 #setwd("./datasets/")
@@ -173,6 +173,34 @@ text(
 )
 }
 dev.off()
+#####################################################
+
+# Boxplot
+
+campo <- "mrentabilidad"
+
+all_columns <- setdiff(
+  colnames(data_clust_hist),
+  c("numero_de_cliente", "foto_mes", "clase_ternaria","i.foto_mes","rf.clusters")
+)
+#options(ggplot2.width = 8, ggplot2.height =5) 
+
+#campo <- "ctrx_quarter"
+
+pdf( paste0("boxplot_2_3", ".pdf"))
+
+for (campo in all_columns) {
+
+p <- ggplot(data = data_clust_hist_select, aes( x = as.factor(rf.clusters), y = !!sym(campo), fill = as.factor(rf.clusters)))+
+  geom_boxplot()
+
+print(p)
+}
+
+dev.off()
+
+
+
 #######################################################################
 ## Graficos de todo la historia del dataset
 #
@@ -258,11 +286,9 @@ library("ggplot2")
 PARAM <- list()
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
-PARAM$input$cluster <- "./datasets/CLU_2_3.csv"
-PARAM$experimento <- "CLU_hist_2_3"
-PARAM$archivo <- "CLU_hist_2_3"
-
-setwd("~/buckets/b1") 
+PARAM$input$cluster <- "./datasets/CLU_2.csv"
+PARAM$experimento <- "CLU_hist_2"
+PARAM$archivo <- "CLU_hist_2_mean"
 
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 clu <- fread(PARAM$input$cluster, stringsAsFactors = TRUE)
@@ -317,73 +343,3 @@ p <- ggplot(tbl, aes(mes_relativo, mean, colour = as.factor(rf.clusters),
 }
 
 dev.off()
-
-
-
-
-############################# CONTINUA ###############################
-
-
-# limpio la memoria
-rm(list = ls()) # remove all objects
-gc() # garbage collection
-
-require("data.table")
-require("rlist")
-require("randomForest")
-
-
-PARAM <- list()
-PARAM$input$training <- c(202105)
-PARAM$experimento <- "CLU_CONT"
-
-# Aqui empieza el programa 
-setwd("~/buckets/b1") 
-
-PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
-
-dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
-
-# Imputo con 0 a todos los NA
-dataset[is.na(dataset), ] <- -99 ## Revisar si conviene colocar en 0 todos los NA
-
-all_columns <- setdiff(
-  colnames(dataset),
-  c("numero_de_cliente", "foto_mes", "clase_ternaria")
-)
-
-data_clust <- dataset[clase_ternaria =="CONTINUA" & foto_mes %in% PARAM$input$training]
-
-data_clust <- data_clust[!duplicated(data_clust$numero_de_cliente),]
-
-
-colnames(data_clust)
-nrow(data_clust)
-
-rf.fit <- randomForest(x = data_clust[1:50000, ..all_columns], y = NULL, ntree = 1000, proximity = TRUE, oob.prox = TRUE)
-
-hclust.rf <- hclust(as.dist(1-rf.fit$proximity), method = "ward.D2")
-rf.cluster = cutree(hclust.rf, k=5)
-data_clust$rf.clusters <- rf.cluster
-table(rf.cluster, data_clust$foto_mes)
-
-feature_importance <- importance(rf.fit)
-
-feature_names <- rownames(feature_importance)
-
-# Agregar una columna con los nombres de las características
-feature_importance <- cbind("Feature" = feature_names, feature_importance)
-
-rf.fit$
-
-# creo las carpetas donde van los resultados 
-# creo la carpeta donde va el experimento 
-dir.create("./exp/", showWarnings = FALSE) 
-dir.create(paste0("./exp/", PARAM$experimento, "/"), showWarnings = FALSE) 
-
-# Establezco el Working Directory DEL EXPERIMENTO 
-setwd(paste0("./exp/", PARAM$experimento, "/")) 
-
-write.table(as.data.frame(feature_importance), file = paste0("feature_importance.txt"), sep = "\t", col.names = TRUE, row.names = FALSE)
-
-fwrite(data_clust[, c("numero_de_cliente", "foto_mes","rf.clusters")],file = paste0(PARAM$experimento, ".csv"),sep = ",")
