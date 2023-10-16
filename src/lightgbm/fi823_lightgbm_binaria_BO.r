@@ -5,13 +5,13 @@
 # se entrena con clase_binaria2  POS =  { BAJA+1, BAJA+2 }
 # Optimizacion Bayesiana de hiperparametros de  lightgbm,
 
-#fi823-3-under+100 iteraciones:
+#fi823-4:
 # = Entreno al modelo:
 #   +PARAM$input$testing <- c(202105)
 #   +PARAM$input$validation <- c(202104)
 #   +PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103)
-# ++ Realizo undersampling = 0.4
-# = Hago 100 iteraciones
+# ++ Realizo undersampling = 1
+# + Hago 150 iteraciones
 # = Agrego lag de 6 meses de cada feature
 # + Agrego delta lag de 1 hasta 6 periodos.
 # = Reemplazo 0 por NA en meses y features selectos
@@ -46,7 +46,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "HT8230_under_3"
+PARAM$experimento <- "HT8230_4"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -57,7 +57,7 @@ PARAM$input$validation <- c(202104)
 PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$undersampling <- 0.4
+PARAM$trainingstrategy$undersampling <- 1
 PARAM$trainingstrategy$semilla_azar <- 270001 # Aqui poner su  primer  semilla
 
 PARAM$hyperparametertuning$POS_ganancia <- 273000
@@ -111,7 +111,7 @@ PARAM$bo_lgb <- makeParamSet(
 )
 
 # si usted es ambicioso, y tiene paciencia, podria subir este valor a 100
-PARAM$bo_iteraciones <- 100 # iteraciones de la Optimizacion Bayesiana
+PARAM$bo_iteraciones <- 150 # iteraciones de la Optimizacion Bayesiana
 
 #------------------------------------------------------------------------------
 # graba a un archivo los componentes de lista
@@ -316,10 +316,12 @@ klog <- paste0(PARAM$experimento, ".txt")
 
 #______________________________________________________
 # Feature engineering
-
+cat("\nComienzo FE\n")
 
 #_______________________________________________
 # FI: Coloco NA a todos los registos en 0
+
+cat("\nRegistros en 0 a NA\n")
 zero_ratio <- list(
   list(mes = 202006, campo = 
     c("active_quarter", "internet", "mrentabilidad", "mrentabilidad_annual", 
@@ -332,7 +334,8 @@ zero_ratio <- list(
       "mcheques_emitidos_rechazados","tcallcenter","ccallcenter_transacciones","thomebanking",
       "chomebanking_transacciones","ccajas_transacciones","ccajas_consultas","ccajas_depositos",
       "ccajas_extracciones","ccajas_otras","catm_trx","matm","catm_trx_other","matm_other",
-      "tmobile_app","cmobile_app_trx")),
+      "tmobile_app","cmobile_app_trx"))
+      ,
   list(mes = 201910, campo = 
     c("mrentabilidad", "mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen",
     "ccomisiones_otras","mcomisiones_otras","chomebanking_transacciones")),
@@ -351,6 +354,8 @@ for (par in zero_ratio) {
 
 #______________________________________________________________
 # FI: hago lag de los ultimos 6 meses de todas las features (menos numero cliente, foto mes y clase ternaria)
+
+cat("\nLag y delta lag de 6 meses\n")
 
 all_columns <- setdiff(
   colnames(dataset),
@@ -393,14 +398,14 @@ for (vcol in all_columns){
 }
 
 #________________________________________________
-# FI: Ranking de cada cliente de cada mes en todas las features con 0 fijo - V2
+# FI: Ranking con 0 fijo de cada cliente de cada mes en features con montos  - V2
+cat("\nRank con 0 fijo de columnas con montos \n")
 
 col_moneda  <- colnames(dataset)
 col_moneda  <- col_moneda[col_moneda %like% "^(m|Visa_m|Master_m|vm_m)"]
 
 for( campo in col_moneda)
 {
-  cat( campo, " " )
   rankcolumns <- paste("rank", campo, sep=".")
   dataset[ get(campo) ==0, (rankcolumns) := 0 ]
   dataset[ get(campo) > 0, (rankcolumns) :=   frank(  get(campo), ties.method="dense")  / .N, by= foto_mes ]
@@ -408,10 +413,10 @@ for( campo in col_moneda)
   dataset[ , (campo) := NULL ]
 }
 
+cat("\nFin FE\n")
+
 # Fin FE
 #--------------------------------------
-
-
 
 # ahora SI comienza la optimizacion Bayesiana
 
