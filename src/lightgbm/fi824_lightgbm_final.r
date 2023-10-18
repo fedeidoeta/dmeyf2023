@@ -2,11 +2,11 @@
 #   8 vCPU
 #  256 GB memoria RAM
 
-#fi824_final:
-# - Validacion del modelo elegido
-# - Periodo de train: c(201907, 201908, 201909, 201910, 201911, 
-#                          201912, 202011, 202012, 202101, 202102, 
-#                          202103, 202104, 202105)
+#fi824_6:
+# + Periodo de train: c(201906,201907, 201908, 201909, 201910, 201911, 
+#                         201912, 202011, 202012, 202101, 202102, 
+#                         202103, 202104) agrego 201906 y quito 202105 
+#   --> La teoria a comprobar/refutar es : "¿El periodo 202105 está envenenado?"
 # + Utilizo los mejores hiperparametros de fi823_under_3
 # = Agrego lag de 6 meses de cada feature
 # + Agrego delta lag de los primeros seis periodos
@@ -25,14 +25,14 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA8240_final"
+PARAM$experimento <- "KA8240_6"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
 # meses donde se entrena el modelo
-PARAM$input$training <- c(201907, 201908, 201909, 201910, 201911, 
+PARAM$input$training <- c(201906,201907, 201908, 201909, 201910, 201911, 
                           201912, 202011, 202012, 202101, 202102, 
-                          202103, 202104, 202105)
+                          202103, 202104)
 
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
@@ -44,9 +44,6 @@ PARAM$finalmodel$optim$learning_rate <- 0.162599417617786 #0.0235628806105752 ->
 PARAM$finalmodel$optim$feature_fraction <- 0.519319201630634 #0.497657499216029 -> 0.163876211111878 -> 0.927367919525626 -> 0.519319201630634
 PARAM$finalmodel$optim$min_data_in_leaf <- 39800 #19746 -> 2059 -> 2339 -> 39800
 PARAM$finalmodel$optim$num_leaves <- 501 #1015 -> 434 -> 795 -> 501
-
-
-
 
 
 #------------------------------------------------------------------------------
