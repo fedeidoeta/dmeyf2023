@@ -2,12 +2,12 @@
 #   8 vCPU
 #  256 GB memoria RAM
 
-#fi824_6:
-# + Periodo de train: c(201906,201907, 201908, 201909, 201910, 201911, 
+#fi824_7:
+# + Periodo de train: c(201907, 201908, 201909, 201910, 201911, 
 #                         201912, 202011, 202012, 202101, 202102, 
-#                         202103, 202104) agrego 201906 y quito 202105 
-#   --> La teoria a comprobar/refutar es : "¿El periodo 202105 está envenenado?"
-# + Utilizo los mejores hiperparametros de fi823_under_3
+#                         202103, 202104, 202105)
+# + Utilizo los mejores hiperparametros de fi823_under_3 iteracion 34
+# --> Teoria, la mejor iteracion de 100, la 78 esta envenenada?
 # = Agrego lag de 6 meses de cada feature
 # + Agrego delta lag de los primeros seis periodos
 # = Reemplazo 0 por NA en meses y features selectos
@@ -25,7 +25,7 @@ require("lightgbm")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA8240_6"
+PARAM$experimento <- "KA8240_7"
 
 PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
 
@@ -39,11 +39,11 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 1027 # 1343 -> 1865 -> 1539 -> 1027
-PARAM$finalmodel$optim$learning_rate <- 0.162599417617786 #0.0235628806105752 -> 0.0509888961244932 ->0.0203714126264267 -> 0.162599417617786
-PARAM$finalmodel$optim$feature_fraction <- 0.519319201630634 #0.497657499216029 -> 0.163876211111878 -> 0.927367919525626 -> 0.519319201630634
-PARAM$finalmodel$optim$min_data_in_leaf <- 39800 #19746 -> 2059 -> 2339 -> 39800
-PARAM$finalmodel$optim$num_leaves <- 501 #1015 -> 434 -> 795 -> 501
+PARAM$finalmodel$optim$num_iterations <- 1027 # 1343 -> 1865 -> 1539 -> 1027 -> 297
+PARAM$finalmodel$optim$learning_rate <- 0.083395377612868 #0.0235628806105752 -> 0.0509888961244932 ->0.0203714126264267 -> 0.162599417617786 ->0.083395377612868
+PARAM$finalmodel$optim$feature_fraction <- 0.507260423918873 #0.497657499216029 -> 0.163876211111878 -> 0.927367919525626 -> 0.519319201630634 ->0.507260423918873
+PARAM$finalmodel$optim$min_data_in_leaf <- 3693 #19746 -> 2059 -> 2339 -> 39800 -> 3693
+PARAM$finalmodel$optim$num_leaves <- 932 #1015 -> 434 -> 795 -> 501 -> 932
 
 
 #------------------------------------------------------------------------------
