@@ -39,7 +39,7 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 1027 # 1343 -> 1865 -> 1539 -> 1027 -> 297
+PARAM$finalmodel$optim$num_iterations <- 297 # 1343 -> 1865 -> 1539 -> 1027 -> 297
 PARAM$finalmodel$optim$learning_rate <- 0.083395377612868 #0.0235628806105752 -> 0.0509888961244932 ->0.0203714126264267 -> 0.162599417617786 ->0.083395377612868
 PARAM$finalmodel$optim$feature_fraction <- 0.507260423918873 #0.497657499216029 -> 0.163876211111878 -> 0.927367919525626 -> 0.519319201630634 ->0.507260423918873
 PARAM$finalmodel$optim$min_data_in_leaf <- 3693 #19746 -> 2059 -> 2339 -> 39800 -> 3693
