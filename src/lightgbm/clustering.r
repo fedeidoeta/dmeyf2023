@@ -46,8 +46,6 @@ feature_names <- rownames(feature_importance)
 # Agregar una columna con los nombres de las características
 feature_importance <- cbind("Feature" = feature_names, feature_importance)
 
-rf.fit$
-
 # creo las carpetas donde van los resultados 
 # creo la carpeta donde va el experimento 
 dir.create("./exp/", showWarnings = FALSE) 
@@ -343,7 +341,6 @@ p <- ggplot(tbl, aes(mes_relativo, mean, colour = as.factor(rf.clusters),
 }
 
 dev.off()
-<<<<<<< HEAD
 
 ##############################CONTINUA########################################
 
@@ -482,8 +479,3 @@ text(
 )
 }
 dev.off()
-
-
-
-=======
->>>>>>> d817d96d599238d049b7992090136b8d44ee153b
