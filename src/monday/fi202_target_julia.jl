@@ -27,10 +27,10 @@ for i in 1:last
   end
 end
 
-## Nueva linea
+## Coloca CONTINUA para aquellos clientes que dejan de estar en el paquete premium y vuelve despues varios meses
 
 for i in 1:last
-  if coalesce(df.clase_ternaria[i], "")=="BAJA+2" &&  i+1 < last && df.clase_ternaria[i+1]=="CONTINUA" && df.numero_de_cliente[i] == df.numero_de_cliente[i+1]
+  if coalesce(df.clase_ternaria[i], "")=="BAJA+2" &&  (i+1 < last) && (coalesce( df.clase_ternaria[i+1], "")=="CONTINUA") && (df.numero_de_cliente[i] == df.numero_de_cliente[i+1])
         df.clase_ternaria[i] = "CONTINUA"
   end
   if (coalesce(df.clase_ternaria[i], "")=="BAJA+1") &&  (i+1 < last) && (coalesce( df.clase_ternaria[i+1], "")=="CONTINUA") && (df.numero_de_cliente[i] == df.numero_de_cliente[i+1])
@@ -39,3 +39,14 @@ for i in 1:last
 end  
 
 CSV.write( "competencia_03_fi.csv", df )
+
+
+
+df[!, "clase_ternaria"] .= coalesce.(df[!, "clase_ternaria"], false)
+df[!, "foto_mes"] .= coalesce.(df[!, "foto_mes"], false)
+
+filtro = (df[!, "clase_ternaria"] .== "BAJA+2") .& (df[!, "foto_mes"] .!= 202108) .& (df[!, "foto_mes"] .!= 202109)
+
+resultados = df[filtro, :]
+
+resultados[resultados.numero_de_cliente .== 70452752 ,:]

@@ -8,15 +8,19 @@ require("randomForest")
 
 
 PARAM <- list()
-PARAM$input$training <- c(202101, 202102, 202103, 202104, 202105)
+PARAM$input$training <- c(202101, 202102, 202103, 202104, 202105, 202106,202107,202108,202109)
 PARAM$experimento <- "CLU_2_4"
 
 # Aqui empieza el programa 
 setwd("~/buckets/b1") 
 
-PARAM$input$dataset <- "./datasets/competencia_02.csv.gz"
+PARAM$input$dataset <- "./datasets/competencia_03_fi.csv.gz"
 
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
+
+
+table(dataset$clase_ternaria, dataset$foto_mes)
+
 
 # Imputo con 0 a todos los NA
 dataset[is.na(dataset), ] <- -99 ## Revisar si conviene colocar en 0 todos los NA
