@@ -30,7 +30,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "BO_baseline"
+PARAM$experimento <- "BO_media"
 
 PARAM$input$dataset <- "./datasets/competencia_03_V2.csv.gz"
 
