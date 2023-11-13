@@ -95,11 +95,11 @@ dtrain <- lgb.Dataset(
 #--------------------------------------
 # creo las carpetas donde van los resultados
 # creo la carpeta donde va el experimento
-dir.create("./exp/", showWarnings = FALSE)
-dir.create(paste0("./exp/", PARAM$experimento, "/"), showWarnings = FALSE)
+dir.create("./exp/ExpColaborativo/", showWarnings = FALSE)
+dir.create(paste0("./exp/ExpColaborativo/", PARAM$experimento, "/"), showWarnings = FALSE)
 
 # Establezco el Working Directory DEL EXPERIMENTO
-setwd(paste0("./exp/", PARAM$experimento, "/"))
+setwd(paste0("./exp/ExpColaborativo/", PARAM$experimento, "/"))
 
 ganancias <- tibble::tribble(~semilla,~ganancia,~envios)
 
