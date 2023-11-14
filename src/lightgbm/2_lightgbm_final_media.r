@@ -24,11 +24,11 @@ PARAM$input$training <- c(202010, 202011, 202012, 202101, 202102, 202103, 202104
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 1222
-PARAM$finalmodel$optim$learning_rate <- 0.02002008
-PARAM$finalmodel$optim$feature_fraction <- 0.91207577
-PARAM$finalmodel$optim$min_data_in_leaf <- 10701
-PARAM$finalmodel$optim$num_leaves <- 384
+PARAM$finalmodel$optim$num_iterations <- 576
+PARAM$finalmodel$optim$learning_rate <- 0.03041553
+PARAM$finalmodel$optim$feature_fraction <- 0.72591167
+PARAM$finalmodel$optim$min_data_in_leaf <- 185
+PARAM$finalmodel$optim$num_leaves <- 67
 
 #--------------------------------------------------
 #Genero semillas
