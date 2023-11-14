@@ -223,7 +223,7 @@ for (semilla_i in semillas) {
 
 
 write.csv(ganancias,
-       file = paste0(PARAM$experimento,"_ganancias_semillerio.csv"),
+       file = paste0("0_",PARAM$experimento,"_ganancias_semillerio.csv"),
        sep = ","
 )
 
