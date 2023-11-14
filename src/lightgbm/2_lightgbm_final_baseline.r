@@ -39,7 +39,7 @@ cant_semillas  <- 20
 #me genero un vector de semilla buscando numeros primos al azar
 primos  <- generate_primes(min=100000, max=1000000)  #funcion que genera primos
 semillas  <- sample(primos)[ 1:cant_semillas ]   #tomo una muestra de numeros primos al azar
-semillas  <- c( 270001, semillas )
+semillas  <- c( 119839, semillas )
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
