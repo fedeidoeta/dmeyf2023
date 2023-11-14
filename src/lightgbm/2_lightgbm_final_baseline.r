@@ -8,6 +8,7 @@ gc() # garbage collection
 
 require("data.table")
 require("lightgbm")
+require("primes")
 
 
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
@@ -50,7 +51,15 @@ dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 truth <- dataset[foto_mes == PARAM$input$future,c("numero_de_cliente","clase_ternaria")]
 
 
-# FI: hago lag de los ultimos 6 meses de todas las features (menos numero cliente, foto mes y clase ternaria)
+####################### MISSING VALUES ##############################
+
+# Baseline
+
+
+############################ FIN MISSING VALUES #####################
+
+
+# agrego lag1, lag3 y lag6
 
 all_columns <- setdiff(
   colnames(dataset),
@@ -104,7 +113,7 @@ setwd(paste0("./exp/ExpColaborativo/", PARAM$experimento, "/"))
 ganancias <- tibble::tribble(~semilla,~ganancia,~envios)
 
 
-for (semilla_i in semilla) {
+for (semilla_i in semillas) {
 
   PARAM$finalmodel$semilla <- semilla_i
 
@@ -176,8 +185,8 @@ for (semilla_i in semilla) {
 
   # grabo las probabilidad del modelo
   fwrite(tb_entrega,
-    file = "prediccion.txt",
-    sep = "\t"
+         file = paste0("prediccion_",semilla_i,".txt"),
+         sep = "\t"
   )
 
   # ordeno por probabilidad descendente
