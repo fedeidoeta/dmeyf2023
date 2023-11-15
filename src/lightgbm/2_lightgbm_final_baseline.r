@@ -34,7 +34,7 @@ PARAM$finalmodel$optim$num_leaves <- 384
 #Genero semillas
 
 set.seed( 270001 )   #dejo fija esta semilla
-cant_semillas  <- 20
+cant_semillas  <- 1
 
 #me genero un vector de semilla buscando numeros primos al azar
 primos  <- generate_primes(min=100000, max=1000000)  #funcion que genera primos
