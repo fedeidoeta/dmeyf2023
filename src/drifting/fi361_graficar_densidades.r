@@ -13,22 +13,22 @@ require("rpart")
 
 graficar_campo <- function(campo) {
   # quito de grafico las colas del 5% de las densidades
-  qA <- quantile(dataset[foto_mes == 202103, get(campo)],
+  qA <- quantile(dataset[foto_mes == 202107, get(campo)],
     prob = c(0.05, 0.95), na.rm = TRUE
   )
 
-  qB <- quantile(dataset[foto_mes == 202105, get(campo)],
+  qB <- quantile(dataset[foto_mes == 202109, get(campo)],
     prob = c(0.05, 0.95), na.rm = TRUE
   )
 
   xxmin <- pmin(qA[[1]], qB[[1]])
   xxmax <- pmax(qA[[2]], qB[[2]])
 
-  densidad_A <- density(dataset[foto_mes == 202103, get(campo)],
+  densidad_A <- density(dataset[foto_mes == 202107, get(campo)],
     kernel = "gaussian", na.rm = TRUE
   )
 
-  densidad_B <- density(dataset[foto_mes == 202105, get(campo)],
+  densidad_B <- density(dataset[foto_mes == 202109, get(campo)],
     kernel = "gaussian", na.rm = TRUE
   )
 
@@ -42,7 +42,7 @@ graficar_campo <- function(campo) {
   lines(densidad_B, col = "red", lty = 2)
 
   legend("topright",
-    legend = c("202103", "202105"),
+    legend = c("202107", "202109"),
     col = c("blue", "red"), lty = c(1, 2)
   )
 }
@@ -52,17 +52,17 @@ graficar_campo <- function(campo) {
 setwd("C:/Users/feder/Documents/Maestria_en_Ciencia_de_datos/4_DM_en_Economia_y_Finanzas")# Establezco el Working Directory
 
 # cargo el dataset donde voy a entrenar
-dataset <- fread("./datasets/competencia_01.csv")
+dataset <- fread("./datasets/competencia_03.csv")
 
 dir.create("./exp/", showWarnings = FALSE)
 dir.create("./exp/DR3610/", showWarnings = FALSE)
 setwd("./exp/DR3610/")
 
-dataset <- dataset[foto_mes %in% c(202103, 202105)]
+dataset <- dataset[foto_mes %in% c(202107, 202109)]
 
 # creo la clase_binaria SI={ BAJA+1, BAJA+2 }    NO={ CONTINUA }
 dataset[
-  foto_mes == 202103,
+  foto_mes == 202107,
   clase_binaria := ifelse(clase_ternaria == "CONTINUA", "NO", "SI")
 ]
 
@@ -71,7 +71,7 @@ dataset[
 # en una Bayesian Optimizationcon 5-fold Cross Validation
 modelo <- rpart(
   formula = "clase_binaria ~ . -clase_ternaria",
-  data = dataset[foto_mes == 202103], # los datos donde voy a entrenar
+  data = dataset[foto_mes == 202107], # los datos donde voy a entrenar
   xval = 0,
   cp = -0.67,
   minsplit = 1144,
@@ -89,7 +89,7 @@ campos_buenos <- setdiff(
 
 
 
-pdf("densidades_03_05.pdf")
+pdf("densidades_07_09.pdf")
 
 for (campo in campos_buenos) {
   cat(campo, "  ")

@@ -9,7 +9,6 @@ require("data.table")
 
 #setwd("~/buckets/b1/")
 
-
 #colaborativo <- list()
 
 #colaborativo$resultados1  <- "./ExpColaborativo/exp/exp_ExpColaborativo_final_baseline_final_baseline_ganancias_semillerio.csv"
