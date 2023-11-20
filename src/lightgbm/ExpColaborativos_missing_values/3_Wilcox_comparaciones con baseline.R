@@ -43,6 +43,8 @@ calcular_ganancias <- function(resultados) {
   ganancias <- resultados_merged[resultados_merged$ganancia == resultados_merged$max_ganancia, 
                                  .(semilla, max_ganancia, lag_ganancia, lead_ganancia)]
   
+  ganancias <- ganancias[!duplicated(ganancias$semilla), ]
+  
   ganancias[, promedio := rowMeans(.SD, na.rm = TRUE), .SDcols = c("max_ganancia", "lag_ganancia", "lead_ganancia")]
   
   return(ganancias)
