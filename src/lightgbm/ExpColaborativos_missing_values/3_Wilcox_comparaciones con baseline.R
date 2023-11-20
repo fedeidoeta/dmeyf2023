@@ -7,21 +7,21 @@ gc()             #garbage collection
 
 require("data.table")
 
-#setwd("~/buckets/b1/")
-
-#colaborativo <- list()
-
-#colaborativo$resultados1  <- "./ExpColaborativo/exp/exp_ExpColaborativo_final_baseline_final_baseline_ganancias_semillerio.csv"
-#colaborativo$resulatados2  <- "./ExpColaborativo/exp/ExpColaborativo_exp_final_imputaciónNA_final_imputaciónNA_ganancias_semillerio.csv"
-
-
 #Ir agregando los resultados de cada experimento
 resultados_experimentos <- list()
 
-resultados_experimentos$resultados1  <- fread( "exp_ExpColaborativo_final_baseline_final_baseline_ganancias_semillerio.csv" )
-resultados_experimentos$resultados2  <- fread( "ExpColaborativo_exp_final_imputaciónNA_final_imputaciónNA_ganancias_semillerio.csv" )
-resultados_experimentos$resultados3  <- fread( "exp_ExpColaborativo_final_media_0_final_media_ganancias_semillerio.csv" )
-#resultados_experimentos$resultados4  <- fread(AGREGAR y no hace falta cambiar más nada)
+resultados_experimentos$baseline  <- fread( "./datasets/ExpColaborativos_missing_values/exp_ExpColaborativo_final_baseline_final_baseline_ganancias_semillerio.csv")
+resultados_experimentos$imputacionNA  <- fread( "./datasets/ExpColaborativos_missing_values/ExpColaborativo_exp_final_imputaciónNA_final_imputaciónNA_ganancias_semillerio.csv" )
+resultados_experimentos$imputacionNA_ajus  <- fread( "./datasets/ExpColaborativos_missing_values/ExpColaborativo_final_NA_ajustado_final_NA_ajustado_ganancias_semillerio.csv" )
+resultados_experimentos$imputacionMedia  <- fread( "./datasets/ExpColaborativos_missing_values/exp_ExpColaborativo_final_media_0_final_media_ganancias_semillerio.csv" )
+resultados_experimentos$imputacionMediana  <- fread("./datasets/ExpColaborativos_missing_values/exp_ExpColaborativo_final_mediana_0_final_mediana_ganancias_semillerio.csv")
+resultados_experimentos$imputacionAnterior  <- fread("./datasets/ExpColaborativos_missing_values/ExpColaborativo_final_imputación_anterior_final_imputación_anterior_ganancias_semillerio.csv")
+resultados_experimentos$imputacionBase_zero_as_missing  <- fread("./datasets/ExpColaborativos_missing_values/exp_ExpColaborativo_final_base_zero_as_missing_0_final_base_zero_as_missing_ganancias_semillerio.csv")
+resultados_experimentos$imputacionNA_zero_as_missing  <- fread("./datasets/ExpColaborativos_missing_values/exp_ExpColaborativo_final_NA_zero_as_missing_0_final_NA_zero_as_missing_ganancias_semillerio.csv")
+
+#Corrijo los titulos de baseline
+setnames(resultados_experimentos[[1]], old = colnames(resultados_experimentos[[1]]), 
+         new = colnames(resultados_experimentos[[2]]))
 
 #divido por un millon las ganancias
 
@@ -64,22 +64,12 @@ for (i in seq_along(ganancias)[-1]) {
   media_ganancias_i <- mean(ganancias_i$promedio)
   
   # Imprimo resultados
-  cat("Comparación con ganancias", i, ":\n")
+  cat("Comparación con ganancias", names(resultados_experimentos[i]), ":\n")
   cat("Estadístico de Wilcoxon:", resultado_wilcox$statistic, "\n")
   cat("P-valor:", resultado_wilcox$p.value, "\n")
-  cat("Media de ganancias1:", media_baseline, "\n")
-  cat("Media de ganancias_i:", media_ganancias_i, "\n")
+  cat("Media de", names(resultados_experimentos[1]) ,":", media_baseline, "\n")
+  cat("Media de", names(resultados_experimentos[i]) ,":", media_ganancias_i, "\n")
   cat("\n------------------------\n")
 }
 
 sink()
-
-
-
-##dejo Wilcoxon para comparar dos modelos:
-
-#wilcox.test(ganancias1[, promedio], 
-            #ganancias2[, promedio])
-
-#mean(ganancias1[, promedio])
-#mean(ganancias2[, promedio])
