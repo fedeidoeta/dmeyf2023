@@ -14,7 +14,7 @@ require("primes")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "final_baseline_recargado_V2"
+PARAM$experimento <- "final_NA_recargado"
 
 PARAM$input$dataset <- "./datasets/competencia_03_V2.csv.gz"
 
@@ -25,17 +25,18 @@ PARAM$input$training <- c(202009, 202008, 202007, 202006, 202005, 202004,
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
 # hiperparametros óptimo de baseline recagado
-PARAM$finalmodel$optim$num_iterations <- 634
-PARAM$finalmodel$optim$learning_rate <- 0.03867885
-PARAM$finalmodel$optim$feature_fraction <- 0.590474
-PARAM$finalmodel$optim$min_data_in_leaf <- 13862
-PARAM$finalmodel$optim$num_leaves <- 318	
+PARAM$finalmodel$optim$num_iterations <- 2464
+PARAM$finalmodel$optim$learning_rate <- 0.0207807
+PARAM$finalmodel$optim$feature_fraction <- 0.84427187
+PARAM$finalmodel$optim$min_data_in_leaf <- 26784
+PARAM$finalmodel$optim$num_leaves <- 934	
+
 
 #--------------------------------------------------
 #Genero semillas
 
 set.seed(270001)   #dejo fija esta semilla
-cant_semillas  <- 300
+cant_semillas  <- 30
 
 #me genero un vector de semilla buscando numeros primos al azar
 primos  <- generate_primes(min=100000, max=1000000)  #funcion que genera primos
@@ -51,6 +52,80 @@ setwd("~/buckets/b1")
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 truth <- dataset[foto_mes == PARAM$input$future,c("numero_de_cliente","clase_ternaria")]
 
+###########IMPUTACIÓN DE NULOS#############
+
+## Imputamos por NA a todos los registos en 0
+
+cat("\nRegistros en 0 a NA\n")
+zero_ratio <- list(
+  list(mes = 202002, campo = 
+         c("ccajeros_propios_descuentos", "ccomisiones_otras",
+           "chomebanking_transacciones", "ctarjeta_master_descuentos",
+           "ctarjeta_visa_descuentos", "mactivos_margen",
+           "mcajeros_propios_descuentos","mcomisiones",
+           "mcomisiones_otras",
+           "mpasivos_margen",
+           "mrentabilidad",
+           "mrentabilidad_annual",
+           "mtarjeta_master_descuentos",
+           "mtarjeta_visa_descuentos")),
+  list(mes = 202002, campo = 
+         c("ccajeros_propios_descuentos",
+           "ctarjeta_master_descuentos",
+           "ctarjeta_visa_descuentos",
+           "mcajeros_propios_descuentos",
+           "mtarjeta_master_descuentos",
+           "mtarjeta_visa_descuentos")),
+  list(mes = 202006, campo = 
+         c("active_quarter", "catm_trx","catm_trx_other","ccajas_consultas",
+           "ccajas_depositos", "ccajas_extracciones","ccajas_otras",
+           "ccajas_transacciones","ccajeros_propios_descuentos",
+           "ccallcenter_transacciones","ccheques_depositados",
+           "ccheques_depositados_rechazados","ccheques_emitidos",
+           "ccheques_emitidos_rechazados","ccomisiones_otras",
+           "cextraccion_autoservicio","chomebanking_transacciones",
+           "cmobile_app_trx","ctarjeta_debito_transacciones",
+           "ctarjeta_master_descuentos","ctarjeta_master_transacciones",
+           "ctarjeta_visa_descuentos","ctarjeta_visa_transacciones",
+           "internet","mactivos_margen","matm","matm_other","mautoservicio",
+           "mcajeros_propios_descuentos","mcheques_depositados",
+           "mcheques_depositados_rechazados","mcheques_emitidos","mcheques_emitidos_rechazados",
+           "mcomisiones","mcomisiones_otras","mcuentas_saldo","mextraccion_autoservicio",
+           "mpasivos_margen","mrentabilidad","mrentabilidad_annual",
+           "mtarjeta_master_consumo","mtarjeta_master_descuentos","mtarjeta_visa_consumo",
+           "mtarjeta_visa_descuentos","tcallcenter","thomebanking","tmobile_app")),
+  list(mes = 202009, campo = 
+         c("ccajeros_propios_descuentos",
+           "ctarjeta_master_descuentos",
+           "ctarjeta_visa_descuentos",
+           "mcajeros_propios_descuentos",
+           "mtarjeta_master_descuentos",
+           "mtarjeta_visa_descuentos")),
+  list(mes = 202010, campo = 
+         c("ccajeros_propios_descuentos",
+           "ctarjeta_master_descuentos",
+           "ctarjeta_visa_descuentos",
+           "mcajeros_propios_descuentos",
+           "mtarjeta_master_descuentos",
+           "mtarjeta_visa_descuentos")),
+  list(mes = 202102, campo = 
+         c("ccajeros_propios_descuentos",
+           "ctarjeta_master_descuentos",
+           "ctarjeta_visa_descuentos",
+           "mcajeros_propios_descuentos",
+           "mtarjeta_master_descuentos",
+           "mtarjeta_visa_descuentos")),
+  list(mes = 202105, campo = 
+         c("ccajas_depositos"))
+)
+
+for (par in zero_ratio) {
+  mes <- par$mes
+  feature <- par$campo
+  dataset[foto_mes == mes, (feature) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDcols = feature]
+}
+
+############FIN IMPUTACIÓN###################
 
 # agrego lag1, lag3 y lag6
 
@@ -68,7 +143,7 @@ for (i in periods){
   dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = all_columns,  by =numero_de_cliente]
 }
 
-# Fin FE
+
 #--------------------------------------
 
 
@@ -102,7 +177,6 @@ dir.create(paste0("./exp/ExpColaborativo/", PARAM$experimento, "/"), showWarning
 
 # Establezco el Working Directory DEL EXPERIMENTO
 setwd(paste0("./exp/ExpColaborativo/", PARAM$experimento, "/"))
-
 
 ganancias <- tibble::tribble(~semilla,~ganancia,~envios)
 
@@ -213,14 +287,12 @@ for (semilla_i in semillas) {
     
   }
   print(paste0("Iteracion ",semilla_i, " finalizada"))
-  
-  #Guardo resultados parciales
-  write.csv(ganancias,
-            file = paste0(PARAM$experimento,"_ganancias_semillerio.csv"),
-            sep = ","
-  )
-
 }
 
+
+write.csv(ganancias,
+          file = paste0(PARAM$experimento,"_ganancias_semillerio.csv"),
+          sep = ","
+)
 
 cat("\n\nLa generacion de los archivos para Kaggle ha terminado\n")
