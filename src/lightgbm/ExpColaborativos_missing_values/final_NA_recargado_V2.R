@@ -14,7 +14,7 @@ require("primes")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "final_NA_recargado"
+PARAM$experimento <- "final_NA_recargado_V2"
 
 PARAM$input$dataset <- "./datasets/competencia_03_V2.csv.gz"
 
