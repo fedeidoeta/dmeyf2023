@@ -142,11 +142,11 @@ dtrain <- lgb.Dataset(
 #--------------------------------------
 # creo las carpetas donde van los resultados
 # creo la carpeta donde va el experimento
-dir.create("./ExpColaborativo/", showWarnings = FALSE)
-dir.create(paste0("./ExpColaborativo/", PARAM$experimento, "/"), showWarnings = FALSE)
+dir.create("./exp/ExpColaborativo/", showWarnings = FALSE)
+dir.create(paste0("./exp/ExpColaborativo/", PARAM$experimento, "/"), showWarnings = FALSE)
 
 # Establezco el Working Directory DEL EXPERIMENTO
-setwd(paste0("./ExpColaborativo/", PARAM$experimento, "/"))
+setwd(paste0("./exp/ExpColaborativo/", PARAM$experimento, "/"))
 
 ganancias <- tibble::tribble(~semilla,~ganancia,~envios)
 
@@ -261,8 +261,8 @@ for (semilla_i in semillas) {
 
 
 write.csv(ganancias,
-          file = paste0(PARAM$experimento,"_ganancias_semillerio.csv"),
-          sep = ","
+       file = paste0("0_",PARAM$experimento,"_ganancias_semillerio.csv"),
+       sep = ","
 )
 
 cat("\n\nLa generacion de los archivos para Kaggle ha terminado\n")

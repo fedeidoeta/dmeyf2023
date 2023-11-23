@@ -275,11 +275,11 @@ dataset <- fread(PARAM$input$dataset)
 
 
 # creo la carpeta donde va el experimento
-dir.create("./ExpColaborativo/exp/", showWarnings = FALSE)
-dir.create(paste0("./ExpColaborativo/exp/", PARAM$experimento, "/"), showWarnings = FALSE)
+dir.create("./exp/ExpColaborativo/", showWarnings = FALSE)
+dir.create(paste0("./exp/ExpColaborativo/", PARAM$experimento, "/"), showWarnings = FALSE)
 
 # Establezco el Working Directory DEL EXPERIMENTO
-setwd(paste0("./ExpColaborativo/exp/", PARAM$experimento, "/"))
+setwd(paste0("./exp/ExpColaborativo/", PARAM$experimento, "/"))
 
 # en estos archivos quedan los resultados
 kbayesiana <- paste0(PARAM$experimento, ".RDATA")
