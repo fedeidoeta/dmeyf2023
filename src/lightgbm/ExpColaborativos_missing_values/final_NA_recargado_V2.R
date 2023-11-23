@@ -36,7 +36,7 @@ PARAM$finalmodel$optim$num_leaves <- 934
 #Genero semillas
 
 set.seed(270001)   #dejo fija esta semilla
-cant_semillas  <- 30
+cant_semillas  <- 300
 
 #me genero un vector de semilla buscando numeros primos al azar
 primos  <- generate_primes(min=100000, max=1000000)  #funcion que genera primos
@@ -287,12 +287,12 @@ for (semilla_i in semillas) {
     
   }
   print(paste0("Iteracion ",semilla_i, " finalizada"))
-}
-
-
-write.csv(ganancias,
-          file = paste0(PARAM$experimento,"_ganancias_semillerio.csv"),
-          sep = ","
+  
+  write.csv(ganancias,
+       file = paste0("0_",PARAM$experimento,"_ganancias_semillerio.csv"),
+       sep = ","
 )
+
+}
 
 cat("\n\nLa generacion de los archivos para Kaggle ha terminado\n")

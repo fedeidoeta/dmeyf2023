@@ -216,8 +216,8 @@ for (semilla_i in semillas) {
   
   #Guardo resultados parciales
   write.csv(ganancias,
-            file = paste0(PARAM$experimento,"_ganancias_semillerio.csv"),
-            sep = ","
+        file = paste0("0_",PARAM$experimento,"_ganancias_semillerio.csv"),
+        sep = ","
   )
 
 }
