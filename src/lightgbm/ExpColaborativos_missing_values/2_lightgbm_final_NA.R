@@ -24,18 +24,18 @@ PARAM$input$training <- c(202010, 202011, 202012, 202101, 202102, 202103, 202104
 PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
 # hiperparametros óptimo de baseline recagado
-PARAM$finalmodel$optim$num_iterations <- 2464
-PARAM$finalmodel$optim$learning_rate <- 0.0207807
-PARAM$finalmodel$optim$feature_fraction <- 0.84427187
-PARAM$finalmodel$optim$min_data_in_leaf <- 26784
-PARAM$finalmodel$optim$num_leaves <- 934	
+PARAM$finalmodel$optim$num_iterations <- 3516
+PARAM$finalmodel$optim$learning_rate <- 0.02003548
+PARAM$finalmodel$optim$feature_fraction <- 0.27934189
+PARAM$finalmodel$optim$min_data_in_leaf <- 224
+PARAM$finalmodel$optim$num_leaves <- 23	
 
 
 #--------------------------------------------------
 #Genero semillas
 
 set.seed(270001)   #dejo fija esta semilla
-cant_semillas  <- 300
+cant_semillas  <- 20
 
 #me genero un vector de semilla buscando numeros primos al azar
 primos  <- generate_primes(min=100000, max=1000000)  #funcion que genera primos
