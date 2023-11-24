@@ -9,13 +9,14 @@
 # + Entreno al modelo:
 #   +PARAM$input$testing <- c(202107)
 #   +PARAM$input$validation <- c(202106)
-#   +PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103, 202104, 202105)
+#   +PARAM$input$training <- c(201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103, 202104, 202105)
 # + Realizo undersampling = 1
 # + Hago 50 iteraciones
-# + "learning_rate", lower = 0.9, upper = 1.5
-# = Agrego lag de 3 meses de cada feature
-# + Agrego delta lag de 1 hasta 3 periodos.
-# = Reemplazo 0 por NA en meses y features selectos
+# + "learning_rate", lower = 0.02, upper = 0.3
+# + Agrego media movil 5 periodos
+# + Agrego lag de 1,3,6 meses de cada feature
+# + Agrego delta lag de 1, 3 y 6 periodos.
+# + Reemplazo 0 por NA en meses y features selectos
 # + Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0 - V2
 
 
@@ -49,13 +50,13 @@ PARAM <- list()
 
 PARAM$experimento <- "HT9230"
 
-PARAM$input$dataset <- "./datasets/competencia_03.csv.gz"
+PARAM$input$dataset <- "./datasets/competencia_03_V2.csv.gz"
 
 # los meses en los que vamos a entrenar
 #  mucha magia emerger de esta eleccion
 PARAM$input$testing <- c(202107)
 PARAM$input$validation <- c(202106)
-PARAM$input$training <- c(201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103, 202104, 202105)
+PARAM$input$training <- c(201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103, 202104, 202105)
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
 PARAM$trainingstrategy$undersampling <- 1
@@ -105,7 +106,7 @@ PARAM$lgb_basicos <- list(
 # Aqui se cargan los hiperparametros que se optimizan
 #  en la Bayesian Optimization
 PARAM$bo_lgb <- makeParamSet(
-  makeNumericParam("learning_rate", lower = 0.9, upper = 1.5),
+  makeNumericParam("learning_rate", lower = 0.02, upper = 0.3),
   makeNumericParam("feature_fraction", lower = 0.01, upper = 1.0),
   makeIntegerParam("num_leaves", lower = 8L, upper = 1024L),
   makeIntegerParam("min_data_in_leaf", lower = 100L, upper = 50000L)
@@ -332,7 +333,7 @@ zero_ratio <- list(
     c("mtransferencias_recibidas","ctransferencias_recibidas")),
   list(mes = 201904, campo = 
     c("ctarjeta_visa_debitos_automaticos","mttarjeta_visa_debitos_automaticos",
-    "mtransferencias_recibidas","ctransferencias_recibidas","ctarjeta_visa_debitos_automaticos")),
+    "mtransferencias_recibidas","ctransferencias_recibidas")),
   list(mes = 201905, campo = 
     c("mrentabilidad", "mrentabilidad_annual", "mcomisiones","mactivos_margen","mpasivos_margen",
     "ccomisiones_otras","mcomisiones_otras","mtransferencias_recibidas","ctransferencias_recibidas")),
@@ -362,35 +363,85 @@ for (par in zero_ratio) {
 #______________________________________________________________
 # FI: hago lag de los ultimos 6 meses de todas las features (menos numero cliente, foto mes y clase ternaria)
 
-cat("\nLag y delta lag de 3 meses\n")
+#Utilizo exp coloborativo
 
-all_columns <- setdiff(
-  colnames(dataset),
-  c("numero_de_cliente", "foto_mes", "clase_ternaria")
-)
+cat("\nMedia en ventana\n")
 
 setorder(dataset, numero_de_cliente, foto_mes)
 
-periods <- seq(1, 3) # Seleccionar cantidad de periodos 
+cols_con_lag <- setdiff(
+  colnames(dataset),
+  c("clase_ternaria", "foto_mes", "numero_de_cliente",
+    "cliente_edad", "cliente_antiguedad")
+)
 
-for (i in periods){
-    lagcolumns <- paste("lag", all_columns,i, sep=".")
-    dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = all_columns,  by =numero_de_cliente]
+#----- media
+if (TRUE) {
+  n <- 5L
+  cols_media = c()
+  for(col in cols_con_lag)
+  {
+    cols_media = c(cols_media, paste0(col, "_media_", n))
+  }
+
+  dataset[, (cols_media) := frollmean(.SD, n=(n), fill=NA, na.rm=TRUE, align="right", algo="fast"),
+                        .SDcols = (cols_con_lag), by=numero_de_cliente]
+
+  dataset[, (cols_media) := shift(.SD, n=1L, fill=NA, type="lag"),
+                        .SDcols = (cols_media), by=numero_de_cliente]
+
+  rm(cols_media, n)
 }
+
+cat("\nLag y delta lag de 3 meses\n")
+
+n_lags = c(1,3,6)
+
+for (i in n_lags)
+{
+  cols_lag = c()
+  for(col in cols_con_lag)
+  {
+    cols_lag = c(cols_lag, paste0(col, "_lag_", i))
+  }
+  dataset[, (cols_lag) := shift(.SD, n=(i), fill=NA, type="lag"),
+                        .SDcols = (cols_con_lag), by=numero_de_cliente]
+
+  rm(cols_lag)
+}
+
+#Algoritmo propio
+#periods <- seq(1, 3, 6) # Seleccionar cantidad de periodos 
+
+#for (i in periods){
+#    lagcolumns <- paste("lag", cols_con_lag,i, sep=".")
+#    dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = cols_con_lag,  by =numero_de_cliente]
+#}
 
 # Delta LAG de 1, 2 y 3 periodos
 
-for (vcol in all_columns){
-  dataset[, paste("delta", vcol,1, sep=".") := get(vcol) - get(paste("lag", vcol,1, sep="."))]
+
+#----- delta lags
+if (TRUE) {
+  for (i in n_lags)
+  {
+    for(col in cols_con_lag)
+    {
+      col_lag = paste0(col, "_lag_", i)
+      col_delta_lag = paste0(col, "_delta_", i)
+      dataset[, (col_delta_lag) := get(col) - get(col_lag)]
+    }
+    rm(col_lag, col_delta_lag)
+  }
 }
 
-for (vcol in all_columns){
-  dataset[, paste("delta", vcol,2, sep=".") := get(vcol) - get(paste("lag", vcol,2, sep="."))]
-}
+rm(cols_con_lag)
 
-for (vcol in all_columns){
-  dataset[, paste("delta", vcol,3, sep=".") := get(vcol) - get(paste("lag", vcol,3, sep="."))]
-}
+
+#Lag para un mes (no lo uso)
+#for (vcol in cols_con_lag){
+#  dataset[, paste("delta", vcol,1, sep=".") := get(vcol) - get(paste("lag", vcol,1, sep="."))]
+#}
 
 #________________________________________________
 # FI: Ranking con 0 fijo de cada cliente de cada mes en features con montos  - V2
