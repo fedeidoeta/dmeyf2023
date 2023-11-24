@@ -10,6 +10,7 @@ gc() # garbage collection
 
 require("data.table")
 require("lightgbm")
+require("primes")
 
 
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
@@ -281,14 +282,15 @@ for (semilla_i in semillas) {
   }
    if (control == 1)
    {
-      tb_final[, prob_acum := rowSums(cbind(prob_acum, prediccion), na.rm = TRUE)]
+      tb_final <- tb_final[tb_entrega, on = c("numero_de_cliente"), nomatch = 0]
+      tb_final[, prob_acum := rowSums(cbind(prob_acum, prob), na.rm = TRUE)]
       c <- c+1
    }
-   if ((c %% 5)==0)
+   if ((c %% 2)==0)
    {
       tb_entrega_parcial <- tb_final
       setorder(tb_entrega_parcial, -prob_acum)
-      cortes <- seq(8000, 10500, by = 500)
+      cortes <- seq(8000, 15000, by = 500)
       for (envios in cortes) {
         tb_entrega_parcial[, Predicted := 0L]
         tb_entrega_parcial[1:envios, Predicted := 1L]
@@ -299,13 +301,13 @@ for (semilla_i in semillas) {
         )
       }
    }
-
+  rm(tb_entrega, tb_entrega_parcial)
 }
 
 tb_entrega <- tb_final
 
 # ordeno por probabilidad descendente
-setorder(tb_entrega, -prob)
+setorder(tb_entrega, -prob_acum)
 
 
 # genero archivos con los  "envios" mejores
@@ -314,7 +316,7 @@ setorder(tb_entrega, -prob)
 # suba TODOS los archivos a Kaggle
 # espera a la siguiente clase sincronica en donde el tema sera explicado
 
-cortes <- seq(8000, 10500, by = 500)
+cortes <- seq(8000, 15000, by = 500)
 for (envios in cortes) {
   tb_entrega[, Predicted := 0L]
   tb_entrega[1:envios, Predicted := 1L]
