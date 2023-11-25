@@ -2,11 +2,14 @@
 #   8 vCPU
 #  256 GB memoria RAM
 
-#fi9240_D_2:
+#fi9240_D_3:
 # + PARAM$input$training <- c(201906, 201907, 201908, 201909, 201910, 201911, 
-#                          201912, 202011, 202012, 202101, 202102, 
+#                          201912, 202001, 202002, 
+#                          202003 ,202004, 202005, #pandemia
+#                          202006, 202007, 202008, 202009,  #pandemia
+#                          202010, 202011, 202012, 202101, 202102, 
 #                          202103, 202104, 202105, 202106, 202107)
-# = extra_trees = FALSE, # Magic Sauce
+# + extra_trees = TRUE, # Magic Sauce
 
 # limpio la memoria
 rm(list = ls()) # remove all objects
@@ -20,25 +23,27 @@ require("primes")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA9240_D_2"
+PARAM$experimento <- "KA9240_D_3"
 
 PARAM$input$dataset <- "./datasets/competencia_03_V2.csv.gz"
 
 # meses donde se entrena el modelo
 PARAM$input$training <- c(201906, 201907, 201908, 201909, 201910, 201911, 
-                          201912, 202011, 202012, 202101, 202102, 
+                          201912, 202001, 202002, 
+                          202003 ,202004, 202005, #pandemia
+                          202006, 202007, 202008, 202009,  #pandemia
+                          202010, 202011, 202012, 202101, 202102, 
                           202103, 202104, 202105, 202106, 202107)
 
 PARAM$input$future <- c(202109) # meses donde se aplica el modelo
 
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 20
-PARAM$finalmodel$optim$learning_rate <- 1.0
-PARAM$finalmodel$optim$feature_fraction <- 0.4
-PARAM$finalmodel$optim$min_data_in_leaf <- 5000
-PARAM$finalmodel$optim$num_leaves <- 40
-
+PARAM$finalmodel$optim$num_iterations <- 30 #20
+PARAM$finalmodel$optim$learning_rate <- 1.0 # 1.0
+PARAM$finalmodel$optim$feature_fraction <- 0.8 #0.4
+PARAM$finalmodel$optim$min_data_in_leaf <- 3000 #5000
+PARAM$finalmodel$optim$num_leaves <- 80 #40
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -107,7 +112,7 @@ all_columns <- setdiff(
 
 setorder(dataset, numero_de_cliente, foto_mes)
 
-periods <- c(1, 2, 6) # Seleccionar cantidad de periodos 
+periods <- c(1, 3, 6) # Seleccionar cantidad de periodos 
 
 for (i in periods){
     lagcolumns <- paste("lag", all_columns,i, sep=".")
@@ -121,7 +126,7 @@ for (vcol in all_columns){
 }
 
 for (vcol in all_columns){
-  dataset[, paste("delta", vcol,2, sep=".") := get(vcol) - get(paste("lag", vcol,2, sep="."))]
+  dataset[, paste("delta", vcol,3, sep=".") := get(vcol) - get(paste("lag", vcol,3, sep="."))]
 }
 
 for (vcol in all_columns){
@@ -191,7 +196,7 @@ PARAM$finalmodel$semilla <- 270029
 #Genero semillas
 
 set.seed( 270001 )   #dejo fija esta semilla
-cant_semillas  <- 200
+cant_semillas  <- 300
 
 #me genero un vector de semilla buscando numeros primos al azar
 primos  <- generate_primes(min=100000, max=1000000)  #funcion que genera primos
@@ -199,11 +204,15 @@ semillas  <- sample(primos)[ 1:cant_semillas ]   #tomo una muestra de numeros pr
 semillas  <- c( 270001, semillas )
 
 #------------------------------------------------------------------------------
-
+# Inicializo variables
 control = 0
 c = 0
 
 tb_final <- data.table(numero_de_cliente = character(), foto_mes = numeric(), prob_acum = numeric())
+
+#------------------------------------------------------------------------------
+#Comienza semillerio
+
 for (semilla_i in semillas) {
 
   PARAM$finalmodel$semilla <- semilla_i
@@ -236,7 +245,7 @@ for (semilla_i in semillas) {
     max_drop = 50, # <=0 means no limit
     skip_drop = 0.5, # 0.0 <= skip_drop <= 1.0
 
-    extra_trees = FALSE, # Magic Sauce
+    extra_trees = TRUE, # Magic Sauce
 
     seed = PARAM$finalmodel$semilla
   )
@@ -294,6 +303,10 @@ for (semilla_i in semillas) {
    }
    if ((c %% 10)==0)
    {
+      fwrite(tb_final,
+        file = paste0("prediccion_acum_",c,".txt"),
+        sep = "\t" ) # Guardo los resultados
+
       tb_entrega_parcial <- tb_final
       setorder(tb_entrega_parcial, -prob_acum)
       cortes <- seq(8000, 13000, by = 500)
@@ -307,6 +320,7 @@ for (semilla_i in semillas) {
         )
       }
    }
+  
   tb_final[, foto_mes := NULL]
   tb_final[, prob := NULL]
   rm(tb_entrega, tb_entrega_parcial)
