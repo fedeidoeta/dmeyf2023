@@ -2,7 +2,11 @@
 #   8 vCPU
 #  256 GB memoria RAM
 
-#fi924:
+#fi9240_D_2:
+# + PARAM$input$training <- c(201906, 201907, 201908, 201909, 201910, 201911, 
+#                          201912, 202011, 202012, 202101, 202102, 
+#                          202103, 202104, 202105, 202106, 202107)
+# = extra_trees = FALSE, # Magic Sauce
 
 # limpio la memoria
 rm(list = ls()) # remove all objects
@@ -16,14 +20,14 @@ require("primes")
 # defino los parametros de la corrida, en una lista, la variable global  PARAM
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
-PARAM$experimento <- "KA9240_D"
+PARAM$experimento <- "KA9240_D_2"
 
 PARAM$input$dataset <- "./datasets/competencia_03_V2.csv.gz"
 
 # meses donde se entrena el modelo
-PARAM$input$training <- c(202101, 202102, 
-                          202103, 202104, 202105, 202106, 202107)#201906, 201907, 201908, 201909, 201910, 201911, 
-                          #201912, 202011, 202012,
+PARAM$input$training <- c(201906, 201907, 201908, 201909, 201910, 201911, 
+                          201912, 202011, 202012, 202101, 202102, 
+                          202103, 202104, 202105, 202106, 202107)
 
 PARAM$input$future <- c(202109) # meses donde se aplica el modelo
 
@@ -187,7 +191,7 @@ PARAM$finalmodel$semilla <- 270029
 #Genero semillas
 
 set.seed( 270001 )   #dejo fija esta semilla
-cant_semillas  <- 5
+cant_semillas  <- 200
 
 #me genero un vector de semilla buscando numeros primos al azar
 primos  <- generate_primes(min=100000, max=1000000)  #funcion que genera primos
@@ -286,15 +290,13 @@ for (semilla_i in semillas) {
    {
       tb_final <- tb_final[tb_entrega, on = c("numero_de_cliente"), nomatch = 0]
       tb_final[, prob_acum := rowSums(cbind(prob_acum, prob), na.rm = TRUE)]
-      tb_final[, foto_mes := NULL]
-      tb_final[, prob := NULL]
       c <- c+1
    }
-   if ((c %% 2)==0)
+   if ((c %% 10)==0)
    {
       tb_entrega_parcial <- tb_final
       setorder(tb_entrega_parcial, -prob_acum)
-      cortes <- seq(8000, 15000, by = 500)
+      cortes <- seq(8000, 13000, by = 500)
       for (envios in cortes) {
         tb_entrega_parcial[, Predicted := 0L]
         tb_entrega_parcial[1:envios, Predicted := 1L]
