@@ -97,7 +97,7 @@ zero_ratio <- list(
       "mcheques_emitidos_rechazados","tcallcenter","ccallcenter_transacciones","thomebanking",
       "chomebanking_transacciones","ccajas_transacciones","ccajas_consultas","ccajas_depositos",
       "ccajas_extracciones","ccajas_otras","catm_trx","matm","catm_trx_other","matm_other",
-      "tmobile_app","cmobile_app_trx"))
+      "cmobile_app_trx"))
 )
 
 for (par in zero_ratio) {
@@ -251,7 +251,7 @@ for (semilla_i in semillas) {
 
     extra_trees = FALSE, # Magic Sauce
     
-    early_stopping= 200,
+    #early_stopping= 200,
 
     seed = PARAM$finalmodel$semilla
   )
