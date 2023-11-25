@@ -198,6 +198,8 @@ semillas  <- c( 270001, semillas )
 
 control = 0
 c = 0
+
+tb_final <- data.table(numero_de_cliente = character(), foto_mes = numeric(), prob_acum = numeric())
 for (semilla_i in semillas) {
 
   PARAM$finalmodel$semilla <- semilla_i
@@ -277,13 +279,15 @@ for (semilla_i in semillas) {
   )
   if (control == 0)
   {
-      tb_final <- tb_entrega[, prob_acum := 0L]
+      tb_final <- tb_entrega[, list(numero_de_cliente, prob_acum = 0L)]
       control = 1 
   }
    if (control == 1)
    {
       tb_final <- tb_final[tb_entrega, on = c("numero_de_cliente"), nomatch = 0]
       tb_final[, prob_acum := rowSums(cbind(prob_acum, prob), na.rm = TRUE)]
+      tb_final[, foto_mes := NULL]
+      tb_final[, prob := NULL]
       c <- c+1
    }
    if ((c %% 2)==0)
@@ -296,11 +300,13 @@ for (semilla_i in semillas) {
         tb_entrega_parcial[1:envios, Predicted := 1L]
 
         fwrite(tb_entrega_parcial[, list(numero_de_cliente, Predicted)],
-          file = paste0("entrega_parcial_",c,"_",PARAM$experimento, "_", envios, ".csv"),
+          file = paste0(c,"_entrega_parcial_",PARAM$experimento, "_", envios, ".csv"),
           sep = ","
         )
       }
    }
+  tb_final[, foto_mes := NULL]
+  tb_final[, prob := NULL]
   rm(tb_entrega, tb_entrega_parcial)
 }
 
@@ -322,7 +328,7 @@ for (envios in cortes) {
   tb_entrega[1:envios, Predicted := 1L]
 
   fwrite(tb_entrega[, list(numero_de_cliente, Predicted)],
-    file = paste0(PARAM$experimento, "_", envios, ".csv"),
+    file = paste0("0_",PARAM$experimento, "_", envios, ".csv"),
     sep = ","
   )
 }
