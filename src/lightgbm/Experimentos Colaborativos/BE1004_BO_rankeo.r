@@ -55,8 +55,8 @@ PARAM$input$training <- c(201906, 201907, 201908, 201909,
 # Experimentos
 
 missing_values <- FALSE
-media_lag_delta <- TRUE
-rankeo <- FALSE
+media_lag_delta <- FALSE
+rankeo <- TRUE
 
 
 # Sin undersampling
