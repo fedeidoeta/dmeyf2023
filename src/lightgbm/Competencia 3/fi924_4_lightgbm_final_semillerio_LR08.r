@@ -2,15 +2,14 @@
 #   8 vCPU
 #  256 GB memoria RAM
 
-#fi9240_D_4:# Parametros JR
-# + PARAM$input$training <- c(201906, 201907, 201908, 201909, 201910, 201911, 
-#                          201912, 202001, 202002, 
-#                          202003 ,202004, 202005, #pandemia
-#                          202006, 202007, 202008, 202009,  #pandemia
-#                          202010, 202011, 202012, 202101, 202102, 
-#                          202103, 202104, 202105, 202106, 202107)
+#fi9240_D_4:# Parametro D
+# + PARAM$input$training <- c(201901, 201902, 201903, 201904, 201905,
+#                          202906, 201907, 201908, 201909, 201910, 
+#                          201911, 201912, 202001, 202002, 202010, 
+#                          202011, 202012, 202101, 202102, 202103, 202104,
+#                          202105, 202106, 202107)
 # + extra_trees = FALSE
-# + early_stopping= 200
+# Saco tmobile_app
 
 # limpio la memoria
 rm(list = ls()) # remove all objects
@@ -29,22 +28,21 @@ PARAM$experimento <- "KA9240_D_4"
 PARAM$input$dataset <- "./datasets/competencia_03_V2.csv.gz"
 
 # meses donde se entrena el modelo
-PARAM$input$training <- c(201906, 201907, 201908, 201909, 201910, 201911, 
-                          201912, 202001, 202002, 
-                          202003 ,202004, 202005, #pandemia
-                          202006, 202007, 202008, 202009,  #pandemia
-                          202010, 202011, 202012, 202101, 202102, 
-                          202103, 202104, 202105, 202106, 202107)
+PARAM$input$training <- c(201901, 201902, 201903, 201904, 201905,
+                          202906, 201907, 201908, 201909, 201910, 
+                          201911, 201912, 202001, 202002, 202010, 
+                          202011, 202012, 202101, 202102, 202103, 202104,
+                          202105, 202106, 202107)
 
 PARAM$input$future <- c(202109) # meses donde se aplica el modelo
 
 #<----
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 17 #30, 20
-PARAM$finalmodel$optim$learning_rate <- 0.729 # 1.0
-PARAM$finalmodel$optim$feature_fraction <- 0.1729 #0.8, 0.4
-PARAM$finalmodel$optim$min_data_in_leaf <- 1729 #3000, 5000
-PARAM$finalmodel$optim$num_leaves <- 1729 #80, 40
+PARAM$finalmodel$optim$num_iterations <- 18 #30, 20
+PARAM$finalmodel$optim$learning_rate <- 0.8 # 1.0
+PARAM$finalmodel$optim$feature_fraction <- 0.3 #0.8, 0.4
+PARAM$finalmodel$optim$min_data_in_leaf <- 4871 #3000, 5000
+PARAM$finalmodel$optim$num_leaves <- 51 #80, 40
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
@@ -54,7 +52,7 @@ setwd("~/buckets/b1")
 # cargo el dataset donde voy a entrenar
 dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
-
+dataset[ , tmobile_app := NULL ] #veremos que pasa
 # Catastrophe Analysis  -------------------------------------------------------
 # deben ir cosas de este estilo
 #   dataset[foto_mes == 202006, active_quarter := NA]
@@ -70,11 +68,24 @@ dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
 #______________________________________________________
 # Feature engineering
-
-
 #_______________________________________________
 # FI: Coloco NA a todos los registos en 0
 zero_ratio <- list(
+  list(mes = 201901, campo = 
+    c("mtransferencias_recibidas","ctransferencias_recibidas")),
+  list(mes = 201902, campo = 
+    c("mtransferencias_recibidas","ctransferencias_recibidas")),
+  list(mes = 201903, campo = 
+    c("mtransferencias_recibidas","ctransferencias_recibidas")),
+  list(mes = 201904, campo = 
+    c("ctarjeta_visa_debitos_automaticos","mttarjeta_visa_debitos_automaticos",
+    "mtransferencias_recibidas","ctransferencias_recibidas")),
+  list(mes = 201905, campo = 
+    c("mrentabilidad", "mrentabilidad_annual", "mcomisiones","mactivos_margen","mpasivos_margen",
+    "ccomisiones_otras","mcomisiones_otras","mtransferencias_recibidas","ctransferencias_recibidas")),
+  list(mes = 201910, campo = 
+    c("mrentabilidad", "mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen",
+    "ccomisiones_otras","mcomisiones_otras","chomebanking_transacciones")),
   list(mes = 202006, campo = 
     c("active_quarter", "internet", "mrentabilidad", "mrentabilidad_annual", 
       "mcomisiones", "mactivos_margen", "mpasivos_margen", "mcuentas_saldo", 
@@ -86,15 +97,7 @@ zero_ratio <- list(
       "mcheques_emitidos_rechazados","tcallcenter","ccallcenter_transacciones","thomebanking",
       "chomebanking_transacciones","ccajas_transacciones","ccajas_consultas","ccajas_depositos",
       "ccajas_extracciones","ccajas_otras","catm_trx","matm","catm_trx_other","matm_other",
-      "tmobile_app","cmobile_app_trx")),
-  list(mes = 201910, campo = 
-    c("mrentabilidad", "mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen",
-    "ccomisiones_otras","mcomisiones_otras","chomebanking_transacciones")),
-  list(mes = 201905, campo = 
-    c("mrentabilidad", "mrentabilidad_annual", "mcomisiones","mactivos_margen","mpasivos_margen",
-    "ccomisiones_otras","mcomisiones_otras")),
-  list(mes = 201904, campo = 
-    c("ctarjeta_visa_debitos_automaticos","mttarjeta_visa_debitos_automaticos"))
+      "tmobile_app","cmobile_app_trx"))
 )
 
 for (par in zero_ratio) {
@@ -113,7 +116,7 @@ all_columns <- setdiff(
 
 setorder(dataset, numero_de_cliente, foto_mes)
 
-periods <- c(1, 3, 6) # Seleccionar cantidad de periodos 
+periods <- c(1, 2, 6) # Seleccionar cantidad de periodos 
 
 for (i in periods){
     lagcolumns <- paste("lag", all_columns,i, sep=".")
@@ -127,7 +130,7 @@ for (vcol in all_columns){
 }
 
 for (vcol in all_columns){
-  dataset[, paste("delta", vcol,3, sep=".") := get(vcol) - get(paste("lag", vcol,3, sep="."))]
+  dataset[, paste("delta", vcol,2, sep=".") := get(vcol) - get(paste("lag", vcol,3, sep="."))]
 }
 
 for (vcol in all_columns){
