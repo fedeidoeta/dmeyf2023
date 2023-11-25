@@ -3,7 +3,7 @@
 # se entrena con clase_binaria2  POS =  { BAJA+1, BAJA+2 }
 # Optimizacion Bayesiana de hiperparametros de  lightgbm,
 
-## BE1001_baseline: 
+## be1001-baseline: 
 # + Train: c(201906, 201907, 201908, 201909, 
 #                          201910, 201911, 201912, 202011, 
 #                          202012, 202101, 202102, 202103, 
