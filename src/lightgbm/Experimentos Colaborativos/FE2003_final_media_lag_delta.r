@@ -40,11 +40,11 @@ rankeo <- FALSE
 
 
 # hiperparametros intencionalmente NO optimos
-PARAM$finalmodel$optim$num_iterations <- 14
-PARAM$finalmodel$optim$learning_rate <- 0.185594033116623
-PARAM$finalmodel$optim$feature_fraction <- 0.755482239350613
-PARAM$finalmodel$optim$min_data_in_leaf <- 3963
-PARAM$finalmodel$optim$num_leaves <- 823
+PARAM$finalmodel$optim$num_iterations <- 792
+PARAM$finalmodel$optim$learning_rate <- 0.13100347163274
+PARAM$finalmodel$optim$feature_fraction <- 0.908948932005213
+PARAM$finalmodel$optim$min_data_in_leaf <- 27616
+PARAM$finalmodel$optim$num_leaves <- 651
 
 
 #------------------------------------------------------------------------------
