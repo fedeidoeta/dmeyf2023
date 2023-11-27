@@ -5,7 +5,7 @@
 # se entrena con clase_binaria2  POS =  { BAJA+1, BAJA+2 }
 # Optimizacion Bayesiana de hiperparametros de  lightgbm,
 
-#fi9231:
+#fi9232:
 # + Entreno al modelo:
 #PARAM$input$testing <- c(202107)
 #PARAM$input$validation <- c(202106)
