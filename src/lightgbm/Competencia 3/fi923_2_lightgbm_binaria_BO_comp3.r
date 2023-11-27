@@ -5,19 +5,19 @@
 # se entrena con clase_binaria2  POS =  { BAJA+1, BAJA+2 }
 # Optimizacion Bayesiana de hiperparametros de  lightgbm,
 
-#fi923:
+#fi9231:
 # + Entreno al modelo:
-#   +PARAM$input$testing <- c(202107)
-#   +PARAM$input$validation <- c(202106)
-#   +PARAM$input$training <- c(201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103, 202104, 202105)
+#PARAM$input$testing <- c(202107)
+#PARAM$input$validation <- c(202106)
+#PARAM$input$training <- c(201901, 201902, 201903, 201904, 201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103, 202104)  
 # + Realizo undersampling = 1
 # + Hago 50 iteraciones
 # + "learning_rate", lower = 0.02, upper = 0.3
 # + Agrego media movil 5 periodos
-# + Agrego lag de 1,3,6 meses de cada feature
-# + Agrego delta lag de 1, 3 y 6 periodos.
+# + Agrego lag de 1,2,6 meses de cada feature
+# + Agrego delta lag de 1, 2 y 6 periodos.
 # + Reemplazo 0 por NA en meses y features selectos
-# + Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0 - V2
+# - Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0 - V2
 
 
 
@@ -48,7 +48,7 @@ options(error = function() {
 #  muy pronto esto se leera desde un archivo formato .yaml
 PARAM <- list()
 
-PARAM$experimento <- "HT9231"
+PARAM$experimento <- "HT9232"
 
 PARAM$input$dataset <- "./datasets/competencia_03_V2.csv.gz"
 
@@ -56,10 +56,15 @@ PARAM$input$dataset <- "./datasets/competencia_03_V2.csv.gz"
 #  mucha magia emerger de esta eleccion
 PARAM$input$testing <- c(202107)
 PARAM$input$validation <- c(202106)
-PARAM$input$training <- c(201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103, 202104, 202105)
+PARAM$input$training <- c(201901, 201902, 201903, 201904, 201905, 201906, 201907, 201908, 201909, 201910, 201911, 201912, 202011, 202012, 202101, 202102, 202103, 202104)
+
+missing_values <- TRUE
+media_lag_delta <- TRUE
+rankeo <- FALSE
+intra_mes <- TRUE
 
 # un undersampling de 0.1  toma solo el 10% de los CONTINUA
-PARAM$trainingstrategy$undersampling <- 1
+PARAM$trainingstrategy$undersampling <- 0.3
 PARAM$trainingstrategy$semilla_azar <- 270001 # Aqui poner su  primer  semilla
 
 PARAM$hyperparametertuning$POS_ganancia <- 273000
@@ -304,25 +309,11 @@ klog <- paste0(PARAM$experimento, ".txt")
 
 
 
-# Catastrophe Analysis  -------------------------------------------------------
-# deben ir cosas de este estilo
-#   dataset[foto_mes == 202006, active_quarter := NA]
+####################### MISSING VALUES ##############################
 
-# Data Drifting
-# por ahora, no hago nada
+if (missing_values) {
 
-
-# Feature Engineering Historico  ----------------------------------------------
-#   aqui deben calcularse los  lags y  lag_delta
-#   Sin lags no hay paraiso !  corta la bocha
-
-#______________________________________________________
-# Feature engineering
-cat("\nComienzo FE\n")
-
-#_______________________________________________
-# FI: Coloco NA a todos los registos en 0
-
+#  Coloca NA en 0 en meses y features selectos
 cat("\nRegistros en 0 a NA\n")
 zero_ratio <- list(
   list(mes = 201901, campo = 
@@ -360,111 +351,186 @@ for (par in zero_ratio) {
   dataset[foto_mes == mes, (feature) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDcols = feature]
 }
 
-#______________________________________________________________
-# FI: hago lag de los ultimos 6 meses de todas las features (menos numero cliente, foto mes y clase ternaria)
 
-#Utilizo exp coloborativo
-
-cat("\nMedia en ventana\n")
-
-setorder(dataset, numero_de_cliente, foto_mes)
-
-cols_con_lag <- setdiff(
-  colnames(dataset),
-  c("clase_ternaria", "foto_mes", "numero_de_cliente",
-    "cliente_edad", "cliente_antiguedad")
-)
-
-#----- media
-if (TRUE) {
-  n <- 5L
-  cols_media = c()
-  for(col in cols_con_lag)
-  {
-    cols_media = c(cols_media, paste0(col, "_media_", n))
-  }
-
-  dataset[, (cols_media) := frollmean(.SD, n=(n), fill=NA, na.rm=TRUE, align="right", algo="fast"),
-                        .SDcols = (cols_con_lag), by=numero_de_cliente]
-
-  dataset[, (cols_media) := shift(.SD, n=1L, fill=NA, type="lag"),
-                        .SDcols = (cols_media), by=numero_de_cliente]
-
-  rm(cols_media, n)
 }
+#-------------------------------------------------------------------
 
-cat("\nLag y delta lag de 3 meses\n")
+########################### MEDIA + LAG + DELTA ########################
+if (media_lag_delta) {
+  cat("\nMedia en ventana\n")
 
-n_lags = c(1,3,6)
+  setorder(dataset, numero_de_cliente, foto_mes)
 
-for (i in n_lags)
-{
-  cols_lag = c()
-  for(col in cols_con_lag)
-  {
-    cols_lag = c(cols_lag, paste0(col, "_lag_", i))
-  }
-  dataset[, (cols_lag) := shift(.SD, n=(i), fill=NA, type="lag"),
-                        .SDcols = (cols_con_lag), by=numero_de_cliente]
+  cols_con_lag <- setdiff(
+    colnames(dataset),
+    c("clase_ternaria", "foto_mes", "numero_de_cliente",
+      "cliente_edad", "cliente_antiguedad")
+  )
 
-  rm(cols_lag)
-}
-
-#Algoritmo propio
-#periods <- seq(1, 3, 6) # Seleccionar cantidad de periodos 
-
-#for (i in periods){
-#    lagcolumns <- paste("lag", cols_con_lag,i, sep=".")
-#    dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = cols_con_lag,  by =numero_de_cliente]
-#}
-
-# Delta LAG de 1, 2 y 3 periodos
-
-
-#----- delta lags
-if (TRUE) {
-  for (i in n_lags)
-  {
+  #----- media
+  if (TRUE) {
+    n <- 5L
+    cols_media = c()
     for(col in cols_con_lag)
     {
-      col_lag = paste0(col, "_lag_", i)
-      col_delta_lag = paste0(col, "_delta_", i)
-      dataset[, (col_delta_lag) := get(col) - get(col_lag)]
+      cols_media = c(cols_media, paste0("Media.", n,"_", col))
     }
-    rm(col_lag, col_delta_lag)
+
+    dataset[, (cols_media) := frollmean(.SD, n=(n), fill=NA, na.rm=TRUE, align="right", algo="fast"),
+                          .SDcols = (cols_con_lag), by=numero_de_cliente]
+
+    dataset[, (cols_media) := shift(.SD, n=1L, fill=NA, type="lag"),
+                          .SDcols = (cols_media), by=numero_de_cliente]
+
+    rm(cols_media, n)
+  }
+
+  cat("\nLag y delta lag de 1, 3 y 6  meses\n")
+
+  n_lags = c(1,2,6)
+
+  for (i in n_lags)
+  {
+    cols_lag = c()
+    for(col in cols_con_lag)
+    {
+      cols_lag = c(cols_lag, paste0("lag.",i,".",col))
+    }
+    dataset[, (cols_lag) := shift(.SD, n=(i), fill=NA, type="lag"),
+                          .SDcols = (cols_con_lag), by=numero_de_cliente]
+
+    rm(cols_lag)
+  }
+
+  #----- delta lags
+  if (TRUE) {
+    for (i in n_lags)
+    {
+      for(col in cols_con_lag)
+      {
+        col_lag = paste0("lag.",i,".",col)
+        col_delta_lag = paste0("delta.",i,".",col)
+        dataset[, (col_delta_lag) := get(col) - get(col_lag)]
+      }
+      rm(col_lag, col_delta_lag)
+    }
+  }
+
+  rm(cols_con_lag)
+}
+########################### DATA DRIFT ########################
+
+if (rankeo){
+  col_moneda  <- colnames(dataset)
+  col_moneda  <- col_moneda[col_moneda %like% "^(m|Visa_m|Master_m|vm_m)"]
+
+  for( campo in col_moneda)
+  {
+    cat( campo, " " )
+    rankcolumns <- paste("rank", campo, sep=".")
+    dataset[ get(campo) ==0, (rankcolumns) := 0 ]
+    dataset[ get(campo) > 0, (rankcolumns) :=   frank(  get(campo), ties.method="dense")  / .N, by= foto_mes ]
+    dataset[ get(campo) < 0, (rankcolumns) :=  -frank( -get(campo), ties.method="dense")  / .N, by= foto_mes ]
+    dataset[ , (campo) := NULL ]
   }
 }
 
-rm(cols_con_lag)
+########################### FE INTRA MES ########################
+
+if(intra_mes){
+
+  cat("\nFE intra mes\n")
+
+  dataset[ , mv_status01       := pmax( Master_status,  Visa_status, na.rm = TRUE) ]
+  dataset[ , mv_status02       := Master_status +  Visa_status ]
+  dataset[ , mv_status03       := pmax( ifelse( is.na(Master_status), 10, Master_status) , ifelse( is.na(Visa_status), 10, Visa_status) ) ]
+  dataset[ , mv_status04       := ifelse( is.na(Master_status), 10, Master_status)  +  ifelse( is.na(Visa_status), 10, Visa_status)  ]
+  dataset[ , mv_status05       := ifelse( is.na(Master_status), 10, Master_status)  +  100*ifelse( is.na(Visa_status), 10, Visa_status)  ]
+
+  dataset[ , mv_status06       := ifelse( is.na(Visa_status), 
+                                          ifelse( is.na(Master_status), 10, Master_status), 
+                                          Visa_status)  ]
+
+  dataset[ , mv_status07       := ifelse( is.na(Master_status), 
+                                          ifelse( is.na(Visa_status), 10, Visa_status), 
+                                          Master_status)  ]
 
 
-#Lag para un mes (no lo uso)
-#for (vcol in cols_con_lag){
-#  dataset[, paste("delta", vcol,1, sep=".") := get(vcol) - get(paste("lag", vcol,1, sep="."))]
-#}
+  #combino MasterCard y Visa
+  dataset[ , mv_mfinanciacion_limite := rowSums( cbind( Master_mfinanciacion_limite,  Visa_mfinanciacion_limite) , na.rm=TRUE ) ]
 
-#________________________________________________
-# FI: Ranking con 0 fijo de cada cliente de cada mes en features con montos  - V2
-cat("\nRank con 0 fijo de columnas con montos \n")
+  dataset[ , mv_Fvencimiento         := pmin( Master_Fvencimiento, Visa_Fvencimiento, na.rm = TRUE) ]
+  dataset[ , mv_Finiciomora          := pmin( Master_Finiciomora, Visa_Finiciomora, na.rm = TRUE) ]
+  dataset[ , mv_msaldototal          := rowSums( cbind( Master_msaldototal,  Visa_msaldototal) , na.rm=TRUE ) ]
+  dataset[ , mv_msaldopesos          := rowSums( cbind( Master_msaldopesos,  Visa_msaldopesos) , na.rm=TRUE ) ]
+  dataset[ , mv_msaldodolares        := rowSums( cbind( Master_msaldodolares,  Visa_msaldodolares) , na.rm=TRUE ) ]
+  dataset[ , mv_mconsumospesos       := rowSums( cbind( Master_mconsumospesos,  Visa_mconsumospesos) , na.rm=TRUE ) ]
+  dataset[ , mv_mconsumosdolares     := rowSums( cbind( Master_mconsumosdolares,  Visa_mconsumosdolares) , na.rm=TRUE ) ]
+  dataset[ , mv_mconsumostotal       := rowSums( cbind( mtarjeta_master_consumo,  mtarjeta_visa_consumo) , na.rm=TRUE ) ]
+  dataset[ , mv_transacciontotal     := rowSums( cbind( ctarjeta_master_transacciones,  ctarjeta_visa_transacciones) , na.rm=TRUE ) ]
+  dataset[ , mv_mlimitecompra        := rowSums( cbind( Master_mlimitecompra,  Visa_mlimitecompra) , na.rm=TRUE ) ]
+  dataset[ , mv_madelantopesos       := rowSums( cbind( Master_madelantopesos,  Visa_madelantopesos) , na.rm=TRUE ) ]
+  dataset[ , mv_madelantodolares     := rowSums( cbind( Master_madelantodolares,  Visa_madelantodolares) , na.rm=TRUE ) ]
+  dataset[ , mv_fultimo_cierre       := pmax( Master_fultimo_cierre, Visa_fultimo_cierre, na.rm = TRUE) ]
+  dataset[ , mv_mpagado              := rowSums( cbind( Master_mpagado,  Visa_mpagado) , na.rm=TRUE ) ]
+  dataset[ , mv_mpagospesos          := rowSums( cbind( Master_mpagospesos,  Visa_mpagospesos) , na.rm=TRUE ) ]
+  dataset[ , mv_mpagosdolares        := rowSums( cbind( Master_mpagosdolares,  Visa_mpagosdolares) , na.rm=TRUE ) ]
+  dataset[ , mv_fechaalta            := pmax( Master_fechaalta, Visa_fechaalta, na.rm = TRUE) ]
+  dataset[ , mv_mconsumototal        := rowSums( cbind( Master_mconsumototal,  Visa_mconsumototal) , na.rm=TRUE ) ]
+  dataset[ , mv_cconsumos            := rowSums( cbind( Master_cconsumos,  Visa_cconsumos) , na.rm=TRUE ) ]
+  dataset[ , mv_cadelantosefectivo   := rowSums( cbind( Master_cadelantosefectivo,  Visa_cadelantosefectivo) , na.rm=TRUE ) ]
+  dataset[ , mv_mpagominimo          := rowSums( cbind( Master_mpagominimo,  Visa_mpagominimo) , na.rm=TRUE ) ]
 
-col_moneda  <- colnames(dataset)
-col_moneda  <- col_moneda[col_moneda %like% "^(m|Visa_m|Master_m|vm_m)"]
+  dataset[ , ca_saldototal           := rowSums( cbind( mcajaahorro,  mcaja_ahorro_adicional, mcaja_ahorro_dolares) , na.rm=TRUE ) ]
+  
+  dataset[ , mp_prestamototal        := rowSums( cbind( mprestamos_personales,  mprestamos_prendarios, mprestamos_hipotecarios) , na.rm=TRUE ) ]
 
-for( campo in col_moneda)
-{
-  rankcolumns <- paste("rank", campo, sep=".")
-  dataset[ get(campo) ==0, (rankcolumns) := 0 ]
-  dataset[ get(campo) > 0, (rankcolumns) :=   frank(  get(campo), ties.method="dense")  / .N, by= foto_mes ]
-  dataset[ get(campo) < 0, (rankcolumns) :=  -frank( -get(campo), ties.method="dense")  / .N, by= foto_mes ]
-  dataset[ , (campo) := NULL ]
+  dataset[ , pr_payrolltotal         := rowSums( cbind( mpayroll,  mpayroll2,0) , na.rm=TRUE ) ]
+  
+  #a partir de aqui juego con la suma de Mastercard y Visa
+  dataset[ , mvr_Master_mlimitecompra:= Master_mlimitecompra / mv_mlimitecompra ]
+  dataset[ , mvr_Visa_mlimitecompra  := Visa_mlimitecompra / mv_mlimitecompra ]
+  dataset[ , mvr_msaldototal         := mv_msaldototal / mv_mlimitecompra ]
+  dataset[ , mvr_msaldopesos         := mv_msaldopesos / mv_mlimitecompra ]
+  dataset[ , mvr_msaldopesos2        := mv_msaldopesos / mv_msaldototal ]
+  dataset[ , mvr_msaldodolares       := mv_msaldodolares / mv_mlimitecompra ]
+  dataset[ , mvr_msaldodolares2      := mv_msaldodolares / mv_msaldototal ]
+  dataset[ , mvr_mconsumospesos      := mv_mconsumospesos / mv_mlimitecompra ]
+  dataset[ , mvr_mconsumosdolares    := mv_mconsumosdolares / mv_mlimitecompra ]
+  dataset[ , mvr_madelantopesos      := mv_madelantopesos / mv_mlimitecompra ]
+  dataset[ , mvr_madelantodolares    := mv_madelantodolares / mv_mlimitecompra ]
+  dataset[ , mvr_mpagado             := mv_mpagado / mv_mlimitecompra ]
+  dataset[ , mvr_mpagospesos         := mv_mpagospesos / mv_mlimitecompra ]
+  dataset[ , mvr_mpagosdolares       := mv_mpagosdolares / mv_mlimitecompra ]
+  dataset[ , mvr_mconsumototal       := mv_mconsumototal  / mv_mlimitecompra ]
+  dataset[ , mvr_mpagominimo         := mv_mpagominimo  / mv_mlimitecompra ]
+  dataset[ , mvr_adelanto_trans      := mv_madelantodolares  / mv_transacciontotal ]
+  dataset[ , ppr_prestamo_payroll    := mp_prestamototal  / pr_payrolltotal ]
+
+
+  #valvula de seguridad para evitar valores infinitos
+  #paso los infinitos a NULOS
+  infinitos      <- lapply(names(dataset),function(.name) dataset[ , sum(is.infinite(get(.name)))])
+  infinitos_qty  <- sum( unlist( infinitos) )
+  if( infinitos_qty > 0 )
+  {
+    cat( "Cant infinito: ", infinitos_qty )
+    dataset[mapply(is.infinite, dataset)] <- NA
+  }
+
+
+  #se invita a asignar un valor razonable segun la semantica del campo creado
+  nans      <- lapply(names(dataset),function(.name) dataset[ , sum(is.nan(get(.name)))])
+  nans_qty  <- sum( unlist( nans) )
+  if( nans_qty > 0 )
+  {
+    cat( "Cant NaN: ", infinitos_qty )
+    dataset[mapply(is.nan, dataset)] <- 0
+  }
+
 }
-
-cat("\nFin FE\n")
-
-# Fin FE
-#--------------------------------------
-
 # ahora SI comienza la optimizacion Bayesiana
+
 
 GLOBAL_iteracion <- 0 # inicializo la variable global
 GLOBAL_gananciamax <- -1 # inicializo la variable global
