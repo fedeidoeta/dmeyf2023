@@ -43,6 +43,7 @@ PARAM$finalmodel$optim$num_iterations <- 383
 PARAM$finalmodel$optim$learning_rate <- 0.0617860979547787
 PARAM$finalmodel$optim$feature_fraction <- 0.770077309712468
 PARAM$finalmodel$optim$min_data_in_leaf <- 22671
+
 PARAM$finalmodel$optim$num_leaves <- 794
 
 
