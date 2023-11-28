@@ -248,7 +248,7 @@ for (semilla_i in semillas) {
 
     extra_trees = FALSE, # Magic Sauce
     
-    early_stopping= 200,
+    #early_stopping= 200,
 
     seed = PARAM$finalmodel$semilla
   )
