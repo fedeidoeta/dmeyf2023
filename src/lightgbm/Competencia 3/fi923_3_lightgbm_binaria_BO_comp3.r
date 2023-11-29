@@ -482,7 +482,7 @@ if(intra_mes){
   dataset[ , mv_cadelantosefectivo   := rowSums( cbind( Master_cadelantosefectivo,  Visa_cadelantosefectivo) , na.rm=TRUE ) ]
   dataset[ , mv_mpagominimo          := rowSums( cbind( Master_mpagominimo,  Visa_mpagominimo) , na.rm=TRUE ) ]
 
-  dataset[ , ca_saldototal           := rowSums( cbind( mcajaahorro,  mcaja_ahorro_adicional, mcaja_ahorro_dolares) , na.rm=TRUE ) ]
+  dataset[ , ca_saldototal           := rowSums( cbind( mcaja_ahorro,  mcaja_ahorro_adicional, mcaja_ahorro_dolares) , na.rm=TRUE ) ]
   
   dataset[ , mp_prestamototal        := rowSums( cbind( mprestamos_personales,  mprestamos_prendarios, mprestamos_hipotecarios) , na.rm=TRUE ) ]
 
