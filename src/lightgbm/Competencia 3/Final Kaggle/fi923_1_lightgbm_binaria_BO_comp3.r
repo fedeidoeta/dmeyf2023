@@ -1,6 +1,6 @@
 # Este script esta pensado para correr en Google Cloud
 #   8 vCPU
-# 128 GB memoria RAM
+# 256 GB memoria RAM
 
 # se entrena con clase_binaria2  POS =  { BAJA+1, BAJA+2 }
 # Optimizacion Bayesiana de hiperparametros de  lightgbm,
