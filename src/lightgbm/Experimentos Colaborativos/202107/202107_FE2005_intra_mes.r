@@ -36,8 +36,8 @@ PARAM$input$future <- c(202107) # meses donde se aplica el modelo
 
 missing_values <- FALSE
 media_lag_delta <- FALSE
-rankeo <- TRUE
-intra_mes <- FALSE
+rankeo <- FALSE
+intra_mes <- TRUE
 
 
 # hiperparametros intencionalmente NO optimos
