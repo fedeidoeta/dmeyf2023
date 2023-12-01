@@ -15,6 +15,7 @@
 # + Agrego delta lag de 1, 2 y 6 periodos.
 # + Reemplazo 0 por NA en meses y features selectos
 # - Rankeo a cada cliente respecto de cada mes en cada feature dejando fijo el 0 - V2
+# + Boosting: goss
 
 # limpio la memoria
 rm(list = ls()) # remove all objects
