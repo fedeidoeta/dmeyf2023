@@ -74,69 +74,123 @@ dataset <- fread(PARAM$input$dataset, stringsAsFactors = TRUE)
 
 #_______________________________________________
 # FI: Coloco NA a todos los registos en 0
-zero_ratio <- list(
-  list(mes = 202006, campo = 
-    c("active_quarter", "internet", "mrentabilidad", "mrentabilidad_annual", 
-      "mcomisiones", "mactivos_margen", "mpasivos_margen", "mcuentas_saldo", 
-      "ctarjeta_debito_transacciones","mautoservicio", "ctarjeta_visa_transacciones", 
-      "mtarjeta_visa_consumo","ctarjeta_master_transacciones", "mtarjeta_master_consumo",
-      "ccomisiones_otras", "mcomisiones_otras","cextraccion_autoservicio","mextraccion_autoservicio",
-      "ccheques_depositados","mcheques_depositados","ccheques_emitidos","mcheques_emitidos",
-      "ccheques_depositados_rechazados","mcheques_depositados_rechazados","ccheques_emitidos_rechazados",
-      "mcheques_emitidos_rechazados","tcallcenter","ccallcenter_transacciones","thomebanking",
-      "chomebanking_transacciones","ccajas_transacciones","ccajas_consultas","ccajas_depositos",
-      "ccajas_extracciones","ccajas_otras","catm_trx","matm","catm_trx_other","matm_other",
-      "tmobile_app","cmobile_app_trx")),
-  list(mes = 201910, campo = 
-    c("mrentabilidad", "mrentabilidad_annual","mcomisiones","mactivos_margen","mpasivos_margen",
-    "ccomisiones_otras","mcomisiones_otras","chomebanking_transacciones")),
-  list(mes = 201905, campo = 
-    c("mrentabilidad", "mrentabilidad_annual", "mcomisiones","mactivos_margen","mpasivos_margen",
-    "ccomisiones_otras","mcomisiones_otras")),
-  list(mes = 201904, campo = 
-    c("ctarjeta_visa_debitos_automaticos","mttarjeta_visa_debitos_automaticos"))
-)
+dataset[foto_mes == 201901, ctransferencias_recibidas := NA]
+dataset[foto_mes == 201901, mtransferencias_recibidas := NA ]
 
-for (par in zero_ratio) {
-  mes <- par$mes
-  feature <- par$campo
-  dataset[foto_mes == mes, (feature) := lapply(.SD, function(x) ifelse(x == 0, NA, x)), .SDcols = feature]
-}
+dataset[foto_mes == 201902, ctransferencias_recibidas := NA]
+dataset[foto_mes == 201902, mtransferencias_recibidas := NA]
+
+dataset[foto_mes == 201903, ctransferencias_recibidas := NA]
+dataset[foto_mes == 201903, mtransferencias_recibidas := NA]
+
+dataset[foto_mes == 201904, ctarjeta_visa_debitos_automaticos := NA]
+dataset[foto_mes == 201904, ctransferencias_recibidas := NA]
+dataset[foto_mes == 201904, mtransferencias_recibidas := NA]
+dataset[foto_mes == 201904, mttarjeta_visa_debitos_automaticos := NA]
+dataset[foto_mes == 201904, Visa_mfinanciacion_limite := NA]
+
+dataset[foto_mes == 201905, ccomisiones_otras := NA]
+dataset[foto_mes == 201905, ctarjeta_visa_debitos_automaticos := NA]
+dataset[foto_mes == 201905, ctransferencias_recibidas := NA]
+dataset[foto_mes == 201905, mactivos_margen := NA]
+dataset[foto_mes == 201905, mcomisiones := NA]
+dataset[foto_mes == 201905, mcomisiones_otras := NA]
+dataset[foto_mes == 201905, mpasivos_margen := NA]
+dataset[foto_mes == 201905, mrentabilidad_annual := NA]
+dataset[foto_mes == 201905, mrentabilidad := NA]
+dataset[foto_mes == 201905, mtransferencias_recibidas := NA]
+
+dataset[foto_mes == 201910, ccajeros_propios_descuentos := NA]
+dataset[foto_mes == 201910, ccomisiones_otras := NA]
+dataset[foto_mes == 201910, chomebanking_transacciones := NA]
+dataset[foto_mes == 201910, ctarjeta_master_descuentos := NA]
+dataset[foto_mes == 201910, ctarjeta_visa_descuentos := NA]
+dataset[foto_mes == 201910, mactivos_margen := NA]
+dataset[foto_mes == 201910, mcajeros_propios_descuentos := NA]
+dataset[foto_mes == 201910, mcomisiones := NA]
+dataset[foto_mes == 201910, mcomisiones_otras := NA]
+dataset[foto_mes == 201910, mpasivos_margen := NA]
+dataset[foto_mes == 201910, mrentabilidad_annual := NA]
+dataset[foto_mes == 201910, mrentabilidad := NA]
+dataset[foto_mes == 201910, mtarjeta_master_descuentos := NA]
+dataset[foto_mes == 201910, mtarjeta_visa_descuentos := NA]
+
+dataset[foto_mes == 202001, cliente_vip := NA]
+
+dataset[foto_mes == 202006, active_quarter := NA]
+dataset[foto_mes == 202006, catm_trx := NA]
+dataset[foto_mes == 202006, catm_trx_other := NA]
+dataset[foto_mes == 202006, ccajas_consultas := NA]
+dataset[foto_mes == 202006, ccajas_depositos := NA]
+dataset[foto_mes == 202006, ccajas_extracciones := NA]
+dataset[foto_mes == 202006, ccajas_otras := NA]
+dataset[foto_mes == 202006, ccajas_transacciones := NA]
+dataset[foto_mes == 202006, ccallcenter_transacciones := NA]
+dataset[foto_mes == 202006, ccheques_depositados := NA]
+dataset[foto_mes == 202006, ccheques_depositados_rechazados := NA]
+dataset[foto_mes == 202006, ccheques_emitidos := NA]
+dataset[foto_mes == 202006, ccheques_emitidos_rechazados := NA]
+dataset[foto_mes == 202006, ccomisiones_otras := NA]
+dataset[foto_mes == 202006, cextraccion_autoservicio := NA]
+dataset[foto_mes == 202006, chomebanking_transacciones := NA]
+dataset[foto_mes == 202006, cmobile_app_trx := NA]
+dataset[foto_mes == 202006, ctarjeta_debito_transacciones := NA]
+dataset[foto_mes == 202006, ctarjeta_master_transacciones := NA]
+dataset[foto_mes == 202006, ctarjeta_visa_transacciones := NA]
+dataset[foto_mes == 202006, ctrx_quarter := NA]
+dataset[foto_mes == 202006, mactivos_margen := NA]
+dataset[foto_mes == 202006, matm := NA]
+dataset[foto_mes == 202006, matm_other := NA]
+dataset[foto_mes == 202006, mautoservicio := NA]
+dataset[foto_mes == 202006, mcheques_depositados := NA]
+dataset[foto_mes == 202006, mcheques_depositados_rechazados := NA]
+dataset[foto_mes == 202006, mcheques_emitidos := NA]
+dataset[foto_mes == 202006, mcheques_emitidos_rechazados := NA]
+dataset[foto_mes == 202006, mcomisiones := NA]
+dataset[foto_mes == 202006, mcomisiones_otras := NA]
+dataset[foto_mes == 202006, mcuentas_saldo := NA]
+dataset[foto_mes == 202006, mextraccion_autoservicio := NA]
+dataset[foto_mes == 202006, mpasivos_margen := NA]
+dataset[foto_mes == 202006, mrentabilidad_annual := NA]
+dataset[foto_mes == 202006, mrentabilidad := NA]
+dataset[foto_mes == 202006, mtarjeta_master_consumo := NA]
+dataset[foto_mes == 202006, mtarjeta_visa_consumo := NA]
+dataset[foto_mes == 202006, tcallcenter := NA]
+dataset[foto_mes == 202006, thomebanking := NA]
 
 #______________________________________________________________
 # FI: hago lag de los ultimos 6 meses de todas las features (menos numero cliente, foto mes y clase ternaria)
+cols_lagueables <- copy(setdiff( colnames(dataset),
+  c("numero_de_cliente", "foto_mes", "clase_ternaria") ))
 
-all_columns <- setdiff(
-  colnames(dataset),
-  c("numero_de_cliente", "foto_mes", "clase_ternaria")
-)
+# lags de orden 1
+dataset[, paste0(cols_lagueables, "_lag1") := shift(.SD, 1, NA, "lag"),
+  by = numero_de_cliente,
+  .SDcols = cols_lagueables
+]
 
-setorder(dataset, numero_de_cliente, foto_mes)
+# agrego los delta lags de orden 1
+for (vcol in cols_lagueables) dataset[, paste0(vcol, "_delta1") := get(vcol) - get(paste0(vcol, "_lag1"))]
 
-periods <- c(1, 3, 6) # Seleccionar cantidad de periodos 
 
-for (i in periods){
-    lagcolumns <- paste("lag", all_columns,i, sep=".")
-    dataset[, (lagcolumns):= shift(.SD, type = "lag", fill = NA, n=i), .SDcols = all_columns,  by =numero_de_cliente]
-}
+# lags de orden 2
+dataset[, paste0(cols_lagueables, "_lag2") := shift(.SD, 2, NA, "lag"),
+  by = numero_de_cliente,
+  .SDcols = cols_lagueables
+]
 
-# Delta LAG de 1 a 6 periodos
+# agrego los delta lags de orden 2
+for (vcol in cols_lagueables) dataset[, paste0(vcol, "_delta2") := get(vcol) - get(paste0(vcol, "_lag2"))]
 
-for (vcol in all_columns){
-  dataset[, paste("delta", vcol,1, sep=".") := get(vcol) - get(paste("lag", vcol,1, sep="."))]
-}
 
-for (vcol in all_columns){
-  dataset[, paste("delta", vcol,3, sep=".") := get(vcol) - get(paste("lag", vcol,3, sep="."))]
-}
+# lags de orden 6
+dataset[, paste0(cols_lagueables, "_lag6") := shift(.SD, 6, NA, "lag"),
+  by = numero_de_cliente,
+  .SDcols = cols_lagueables
+]
 
-for (vcol in all_columns){
-  dataset[, paste("delta", vcol,6, sep=".") := get(vcol) - get(paste("lag", vcol,6, sep="."))]
-}
-
-#for (vcol in all_columns){
-#  dataset[, paste("delta", vcol,4, sep=".") := get(vcol) - get(paste("lag", vcol,4, sep="."))]
-#}
+# agrego los delta lags de orden 6
+for (vcol in cols_lagueables) dataset[, paste0(vcol, "_delta6") := get(vcol) - get(paste0(vcol, "_lag6"))]
 
 #________________________________________________
 # FI: Ranking de cada cliente de cada mes en todas las features con 0 fijo - V2

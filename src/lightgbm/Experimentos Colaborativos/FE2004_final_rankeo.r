@@ -193,7 +193,6 @@ if (rankeo){
     dataset[ get(campo) ==0, (rankcolumns) := 0 ]
     dataset[ get(campo) > 0, (rankcolumns) :=   frank(  get(campo), ties.method="dense")  / .N, by= foto_mes ]
     dataset[ get(campo) < 0, (rankcolumns) :=  -frank( -get(campo), ties.method="dense")  / .N, by= foto_mes ]
-    dataset[ , (campo) := NULL ]
   }
 }
 

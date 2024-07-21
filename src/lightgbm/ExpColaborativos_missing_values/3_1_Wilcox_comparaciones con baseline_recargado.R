@@ -7,15 +7,30 @@ gc()             #garbage collection
 
 require("data.table")
 
+
 #Ir agregando los resultados de cada experimento
 resultados_experimentos <- list()
 
 resultados_experimentos$baseline_recargado  <- fread( "./datasets/ExpColaborativos_missing_values/exp_ExpColaborativo_final_baseline_recargado_V2_final_baseline_recargado_V2_ganancias_semillerio.csv")
 resultados_experimentos$imputacionNA_recargado  <- fread( "./datasets/ExpColaborativos_missing_values/exp_ExpColaborativo_final_NA_recargado_V2_0_final_NA_recargado_V2_ganancias_semillerio.csv" )
+
+#resultados_experimentos_part1 <- list()
+#resultados_experimentos_part1$baseline_recargado  <- fread( "./datasets/ExpColaborativos_missing_values/ExpColaborativo_final_baseline_recargado_final_baseline_recargado_ganancias_semillerio_parte1.csv")
+#resultados_experimentos_part1$imputacionNA_recargado  <- fread( "./datasets/ExpColaborativos_missing_values/ExpColaborativo_final_NA_recargado_final_NA_recargado_ganancias_semillerio_parte1.csv")
+
+#resultados_experimentos$baseline_recargado <- rbind(resultados_experimentos_part1$baseline_recargado,resultados_experimentos$baseline_recargado )
+#resultados_experimentos$imputacionNA_recargado <- rbind(resultados_experimentos_part1$imputacionNA_recargado,resultados_experimentos$imputacionNA_recargado )
+
+length(resultados_experimentos$imputacionNA_recargado$semilla)
+
+#resultados_experimentos$baseline_recargado <- resultados_experimentos$baseline_recargado[1:length(resultados_experimentos$imputacionNA_recargado$semilla),]
+
 #Igualo cantidad y semilla
 resultados_experimentos$baseline_recargado <- resultados_experimentos$baseline_recargado[resultados_experimentos$baseline_recargado$semilla %in% resultados_experimentos$imputacionNA_recargado$semilla]
-#divido por un millon las ganancias
 
+length(resultados_experimentos$baseline_recargado$semilla)
+
+#divido por un millon las ganancias
 for (i in seq_along(resultados_experimentos)) {
   resultados_experimentos[[i]][, ganancia := ganancia / 1e6]
 }
